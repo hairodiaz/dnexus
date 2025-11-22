@@ -1,11 +1,11 @@
 {
-    "name": "dnexus",
-    "short_name": "dnexus",
-    "start_url": ".",
+    "name": "D-Nexus - Sistema de Gestión Empresarial",
+    "short_name": "D-Nexus",
+    "start_url": "/",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#1976D2",
+    "theme_color": "#1976D2",
+    "description": "Sistema integral de gestión empresarial con módulos de transacciones, contabilidad y administración de negocios.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

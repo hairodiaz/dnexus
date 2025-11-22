@@ -1,0 +1,38 @@
+# Flutter/Dart related
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Build artifacts
+android/
+ios/
+linux/
+macos/
+windows/
+test/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local env files
+.env
+.env.local
+.env.*.local
+
+# Cache
+.dart_tool/
+.packages
+build/
+!build/web/
