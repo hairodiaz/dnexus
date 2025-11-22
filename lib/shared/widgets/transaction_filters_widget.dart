@@ -43,7 +43,7 @@ class TransactionFiltersWidget extends StatelessWidget {
     );
   }
 
-  /// Filtros compactos para móvil - una sola línea
+  /// Filtros compactos para móvil - una sola línea mejorada
   Widget _buildCompactMobileFilters(BuildContext context) {
     return Row(
       children: [
@@ -60,14 +60,23 @@ class TransactionFiltersWidget extends StatelessWidget {
           flex: 2,
           child: _buildCompactDropdown(
             context: context,
-            value: selectedPeriodFilter.displayName,
+            value: selectedPeriodFilter,
+            displayText: selectedPeriodFilter.displayName,
             items: TransactionPeriodFilter.values.map((filter) {
               return DropdownMenuItem<TransactionPeriodFilter>(
                 value: filter,
-                child: Text(
-                  filter.displayName,
-                  style: const TextStyle(fontSize: 12),
-                  overflow: TextOverflow.ellipsis,
+                child: Row(
+                  children: [
+                    Text(filter.icon, style: const TextStyle(fontSize: 12)),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        filter.displayName,
+                        style: const TextStyle(fontSize: 12),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
               );
             }).toList(),
@@ -78,22 +87,40 @@ class TransactionFiltersWidget extends StatelessWidget {
         
         const SizedBox(width: 6),
         
-        // Dropdown de tipo (compacto)
+        // Dropdown de tipo (compacto con iconos)
         Expanded(
-          child: _buildCompactDropdown(
+          child: _buildCompactDropdown<TransactionTypeFilter?>(
             context: context,
-            value: selectedTypeFilter?.displayName ?? 'Todo',
+            value: selectedTypeFilter,
+            displayText: selectedTypeFilter == null 
+              ? 'Todo' 
+              : '${selectedTypeFilter!.icon} ${selectedTypeFilter!.displayName.substring(0, 3)}',
             items: [
               const DropdownMenuItem<TransactionTypeFilter?>(
                 value: null,
-                child: Text('Todo', style: TextStyle(fontSize: 12)),
+                child: Row(
+                  children: [
+                    Text('📋', style: TextStyle(fontSize: 12)),
+                    SizedBox(width: 4),
+                    Text('Todo', style: TextStyle(fontSize: 12)),
+                  ],
+                ),
               ),
               ...TransactionTypeFilter.values.map((filter) {
                 return DropdownMenuItem<TransactionTypeFilter?>(
                   value: filter,
-                  child: Text(
-                    filter.displayName.substring(0, 3), // Solo 3 caracteres
-                    style: const TextStyle(fontSize: 12),
+                  child: Row(
+                    children: [
+                      Text(filter.icon, style: const TextStyle(fontSize: 12)),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          filter.displayName,
+                          style: const TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 );
               }),
@@ -105,22 +132,40 @@ class TransactionFiltersWidget extends StatelessWidget {
         
         const SizedBox(width: 6),
         
-        // Dropdown de pago (compacto)
+        // Dropdown de pago (compacto con iconos)
         Expanded(
-          child: _buildCompactDropdown(
+          child: _buildCompactDropdown<TransactionPaymentFilter?>(
             context: context,
-            value: selectedPaymentFilter?.displayName ?? 'Todo',
+            value: selectedPaymentFilter,
+            displayText: selectedPaymentFilter == null 
+              ? 'Todo' 
+              : '${selectedPaymentFilter!.icon} ${selectedPaymentFilter!.displayName.substring(0, 3)}',
             items: [
               const DropdownMenuItem<TransactionPaymentFilter?>(
                 value: null,
-                child: Text('Todo', style: TextStyle(fontSize: 12)),
+                child: Row(
+                  children: [
+                    Text('💳', style: TextStyle(fontSize: 12)),
+                    SizedBox(width: 4),
+                    Text('Todo', style: TextStyle(fontSize: 12)),
+                  ],
+                ),
               ),
               ...TransactionPaymentFilter.values.map((filter) {
                 return DropdownMenuItem<TransactionPaymentFilter?>(
                   value: filter,
-                  child: Text(
-                    filter.displayName.substring(0, 3), // Solo 3 caracteres
-                    style: const TextStyle(fontSize: 12),
+                  child: Row(
+                    children: [
+                      Text(filter.icon, style: const TextStyle(fontSize: 12)),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          filter.displayName,
+                          style: const TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 );
               }),
@@ -153,6 +198,65 @@ class TransactionFiltersWidget extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+
+  /// Dropdown compacto mejorado que muestra correctamente la selección
+  Widget _buildCompactDropdown<T>({
+    required BuildContext context,
+    required T value,
+    required String displayText,
+    required List<DropdownMenuItem<T>> items,
+    required ValueChanged<T?> onChanged,
+    required Color color,
+  }) {
+    return Container(
+      height: 32,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          value: value,
+          isDense: true,
+          isExpanded: true,
+          style: TextStyle(
+            fontSize: 11,
+            color: color,
+            fontWeight: FontWeight.w500,
+          ),
+          selectedItemBuilder: (BuildContext context) {
+            return items.map<Widget>((DropdownMenuItem<T> item) {
+              return Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  displayText,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: color,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              );
+            }).toList();
+          },
+          items: items,
+          onChanged: onChanged,
+          dropdownColor: Colors.white,
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            size: 14,
+            color: color,
+          ),
+        ),
+      ),
     );
   }
 
@@ -212,55 +316,7 @@ class TransactionFiltersWidget extends StatelessWidget {
     );
   }
 
-  /// Dropdown compacto para móvil
-  Widget _buildCompactDropdown<T>({
-    required BuildContext context,
-    required String value,
-    required List<DropdownMenuItem<T>> items,
-    required ValueChanged<T?> onChanged,
-    required Color color,
-  }) {
-    return Container(
-      height: 32,
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<T>(
-          isDense: true,
-          isExpanded: true,
-          style: TextStyle(
-            fontSize: 11,
-            color: color,
-            fontWeight: FontWeight.w500,
-          ),
-          hint: Text(
-            value,
-            style: TextStyle(
-              fontSize: 11,
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-          items: items,
-          onChanged: onChanged,
-          dropdownColor: Colors.white,
-          icon: Icon(
-            Icons.keyboard_arrow_down,
-            size: 14,
-            color: color,
-          ),
-        ),
-      ),
-    );
-  }
+
 
   Color _getTypeColor(TransactionTypeFilter? filter) {
     if (filter == null) return Colors.grey;

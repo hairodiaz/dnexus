@@ -11,9 +11,9 @@ class BusinessService {
     return [
       BusinessModel(
         id: 1,
-        nombre: 'Mi Negocio Demo',
-        tipo: 'retail',
-        descripcion: 'Negocio de demostración para D-Nexus',
+        nombre: 'AutoRepuestos El Mecánico',
+        tipo: 'repuestos',
+        descripcion: 'Venta de repuestos automotrices y accesorios',
         propietarioId: 1,
         activo: true,
         createdAt: DateTime.now().subtract(const Duration(days: 30)),
@@ -21,12 +21,22 @@ class BusinessService {
       ),
       BusinessModel(
         id: 2,
-        nombre: 'Tienda Virtual',
-        tipo: 'ecommerce',
-        descripcion: 'Tienda en línea de ejemplo',
-        propietarioId: 1,
+        nombre: 'ElectroHogar Premium',
+        tipo: 'electrodomesticos',
+        descripcion: 'Electrodomésticos y tecnología para el hogar',
+        propietarioId: 2,
         activo: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 15)),
+        createdAt: DateTime.now().subtract(const Duration(days: 25)),
+        updatedAt: DateTime.now(),
+      ),
+      BusinessModel(
+        id: 3,
+        nombre: 'Préstamos Rápidos Plus',
+        tipo: 'prestamos',
+        descripcion: 'Servicios financieros y préstamos personales',
+        propietarioId: 3,
+        activo: true,
+        createdAt: DateTime.now().subtract(const Duration(days: 20)),
         updatedAt: DateTime.now(),
       ),
     ];
@@ -77,10 +87,11 @@ class BusinessService {
     try {
       AppConfig.logger.d('Getting businesses for user: $userId');
       
-      // Si estamos en web, usar datos simulados
+      // Si estamos en web, usar datos simulados filtrados por usuario
       if (kIsWeb) {
-        AppConfig.logger.d('Web platform - using simulated businesses for user');
-        return _getSimulatedBusinesses();
+        AppConfig.logger.d('Web platform - using simulated businesses for user: $userId');
+        final allBusinesses = _getSimulatedBusinesses();
+        return allBusinesses.where((business) => business.propietarioId == userId).toList();
       }
       
       const query = '''
