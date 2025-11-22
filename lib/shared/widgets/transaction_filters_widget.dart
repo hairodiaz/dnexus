@@ -221,52 +221,41 @@ class TransactionFiltersWidget extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: Stack(
-        children: [
-          // El dropdown invisible para manejar la funcionalidad
-          DropdownButtonHideUnderline(
-            child: DropdownButton<T>(
-              value: value,
-              isDense: true,
-              isExpanded: true,
-              style: const TextStyle(color: Colors.transparent),
-              items: items,
-              onChanged: onChanged,
-              dropdownColor: Colors.white,
-              icon: const SizedBox.shrink(),
-            ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          value: value,
+          isDense: true,
+          isExpanded: true,
+          style: TextStyle(
+            fontSize: 11,
+            color: color,
+            fontWeight: FontWeight.w500,
           ),
-          // El texto personalizado visible
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Container(
+          selectedItemBuilder: (BuildContext context) {
+            return items.map<Widget>((item) {
+              return Container(
                 alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(left: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        displayText,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: color,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 14,
-                      color: color,
-                    ),
-                  ],
+                child: Text(
+                  displayText,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: color,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ),
+              );
+            }).toList();
+          },
+          items: items,
+          onChanged: onChanged,
+          dropdownColor: Colors.white,
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            size: 14,
+            color: color,
           ),
-        ],
+        ),
       ),
     );
   }
@@ -493,12 +482,26 @@ class TransactionFiltersWidget extends StatelessWidget {
           value: items.any((item) => item.value.toString() == value) 
               ? items.firstWhere((item) => item.value.toString() == value).value
               : items.first.value,
+          selectedItemBuilder: (BuildContext context) {
+            return items.map<Widget>((item) {
+              return Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 12 : 16,
+                  vertical: isMobile ? 8 : 12,
+                ),
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    color: Colors.grey[800],
+                    fontSize: isMobile ? 13 : 14,
+                  ),
+                ),
+              );
+            }).toList();
+          },
           items: items,
           onChanged: onChanged,
-          padding: EdgeInsets.symmetric(
-            horizontal: isMobile ? 12 : 16,
-            vertical: isMobile ? 8 : 12,
-          ),
           style: TextStyle(
             color: Colors.grey[800],
             fontSize: isMobile ? 13 : 14,
