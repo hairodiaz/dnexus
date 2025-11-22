@@ -31,8 +31,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
   
   // Variables de filtro
   TransactionPeriodFilter _periodFilter = TransactionPeriodFilter.today;
-  TransactionTypeFilter _typeFilter = TransactionTypeFilter.all;
-  TransactionPaymentFilter _paymentFilter = TransactionPaymentFilter.all;
+  TransactionTypeFilter? _typeFilter;
+  TransactionPaymentFilter? _paymentFilter;
 
   @override
   void initState() {
@@ -51,14 +51,14 @@ class _TransactionsPageState extends State<TransactionsPage> {
       final transactions = await _transactionService.getFilteredTransactions(
         widget.business.id,
         periodFilter: _periodFilter,
-        typeFilter: _typeFilter,
-        paymentFilter: _paymentFilter,
+        typeFilter: _typeFilter ?? TransactionTypeFilter.all,
+        paymentFilter: _paymentFilter ?? TransactionPaymentFilter.all,
       );
       final stats = await _transactionService.getFilteredTransactionStats(
         widget.business.id,
         periodFilter: _periodFilter,
-        typeFilter: _typeFilter,
-        paymentFilter: _paymentFilter,
+        typeFilter: _typeFilter ?? TransactionTypeFilter.all,
+        paymentFilter: _paymentFilter ?? TransactionPaymentFilter.all,
       );
       
       setState(() {
@@ -153,9 +153,11 @@ class _TransactionsPageState extends State<TransactionsPage> {
     final balance = _stats['balance'] ?? 0.0;
     final totalTransacciones = _stats['totalTransacciones'] ?? 0;
 
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    
     return Container(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.fromLTRB(isMobile ? 8 : 12, 0, isMobile ? 8 : 12, isMobile ? 8 : 12),
+      padding: EdgeInsets.all(isMobile ? 8 : 12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.green[50]!, Colors.green[100]!],
@@ -201,7 +203,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
               ],
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isMobile ? 10 : 16),
           Row(
             children: [
               Expanded(
@@ -210,20 +212,22 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   '\$${totalIngresos.toStringAsFixed(2)}',
                   Icons.trending_up,
                   Colors.green,
+                  isMobile,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: isMobile ? 8 : 12),
               Expanded(
                 child: _buildStatCard(
                   'Egresos',
                   '\$${totalEgresos.toStringAsFixed(2)}',
                   Icons.trending_down,
                   Colors.red,
+                  isMobile,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: isMobile ? 8 : 12),
           Row(
             children: [
               Expanded(
@@ -232,15 +236,17 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   '\$${balance.toStringAsFixed(2)}',
                   balance >= 0 ? Icons.account_balance_wallet : Icons.warning,
                   balance >= 0 ? Colors.blue : Colors.orange,
+                  isMobile,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: isMobile ? 8 : 12),
               Expanded(
                 child: _buildStatCard(
                   'Transacciones',
                   '$totalTransacciones',
                   Icons.receipt_long,
                   Colors.purple,
+                  isMobile,
                 ),
               ),
             ],
@@ -251,9 +257,9 @@ class _TransactionsPageState extends State<TransactionsPage> {
   }
 
   /// Card individual de estadística
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(String title, String value, IconData icon, Color color, [bool isMobile = false]) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(isMobile ? 8 : 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -261,21 +267,21 @@ class _TransactionsPageState extends State<TransactionsPage> {
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(height: 4),
+          Icon(icon, color: color, size: isMobile ? 18 : 20),
+          SizedBox(height: isMobile ? 3 : 4),
           Text(
             title,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: isMobile ? 11 : 12,
               color: Colors.grey[600],
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: isMobile ? 1 : 2),
           Text(
             value,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: isMobile ? 13 : 14,
               fontWeight: FontWeight.bold,
               color: color,
             ),
@@ -321,8 +327,10 @@ class _TransactionsPageState extends State<TransactionsPage> {
       );
     }
 
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isMobile ? 8 : 16),
       itemCount: _transactions.length,
       itemBuilder: (context, index) {
         final transaction = _transactions[index];
@@ -335,16 +343,17 @@ class _TransactionsPageState extends State<TransactionsPage> {
   Widget _buildTransactionCard(TransactionModel transaction) {
     final isIngreso = transaction.tipo == 'ingreso';
     final color = isIngreso ? Colors.green : Colors.red;
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: isMobile ? 8 : 12),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: color.withOpacity(0.2), width: 1),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(isMobile ? 8 : 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -352,7 +361,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(isMobile ? 6 : 8),
                   decoration: BoxDecoration(
                     color: color.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -360,10 +369,10 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   child: Icon(
                     isIngreso ? Icons.add_circle : Icons.remove_circle,
                     color: color,
-                    size: 20,
+                    size: isMobile ? 18 : 20,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: isMobile ? 8 : 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,8 +383,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
                           Expanded(
                             child: Text(
                               transaction.concepto,
-                              style: const TextStyle(
-                                fontSize: 16,
+                              style: TextStyle(
+                                fontSize: isMobile ? 14 : 16,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -383,18 +392,18 @@ class _TransactionsPageState extends State<TransactionsPage> {
                           Text(
                             transaction.montoFormateado,
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: isMobile ? 16 : 18,
                               fontWeight: FontWeight.bold,
                               color: color,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: isMobile ? 2 : 4),
                       Text(
                         transaction.categoria,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: isMobile ? 12 : 14,
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w500,
                         ),
@@ -414,7 +423,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: isMobile ? 8 : 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -674,8 +683,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
   /// Obtener mensaje cuando no hay transacciones según filtros
   String _getEmptyMessage() {
-    if (_typeFilter != TransactionTypeFilter.all) {
-      return 'No hay ${_typeFilter.displayName.toLowerCase()} en ${_periodFilter.displayName.toLowerCase()}';
+    if (_typeFilter != null && _typeFilter != TransactionTypeFilter.all) {
+      return 'No hay ${_typeFilter!.displayName.toLowerCase()} en ${_periodFilter.displayName.toLowerCase()}';
     }
     
     switch (_periodFilter) {
