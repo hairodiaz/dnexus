@@ -5,6 +5,7 @@ import '../../../shared/services/business_service.dart';
 import '../../transacciones/pages/transactions_page.dart';
 import '../../reports/pages/consolidated_reports_page.dart';
 import '../../clients/pages/clients_page.dart';
+import '../../inventory/pages/inventory_page.dart';
 
 /// Dashboard principal de D-Nexus
 class DashboardPage extends StatefulWidget {
@@ -503,6 +504,15 @@ class _DashboardPageState extends State<DashboardPage> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => const ClientsPage(),
+        ),
+      );
+    } else if (module == 'inventory' && _selectedBusiness != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => InventoryPage(
+            user: widget.user,
+            businessId: _selectedBusiness!.id,
+          ),
         ),
       );
     } else {
