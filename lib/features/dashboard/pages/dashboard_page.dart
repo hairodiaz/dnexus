@@ -3,6 +3,7 @@ import '../../../shared/models/user_model.dart';
 import '../../../shared/models/business_model.dart';
 import '../../../shared/services/business_service.dart';
 import '../../transacciones/pages/transactions_page.dart';
+import '../../reports/pages/consolidated_reports_page.dart';
 
 /// Dashboard principal de D-Nexus
 class DashboardPage extends StatefulWidget {
@@ -232,12 +233,19 @@ class _DashboardPageState extends State<DashboardPage> {
             
             const SizedBox(height: 16),
             
-            // Grid de módulos
+            // Grid de módulos - Layout responsivo
             Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 600;
+                  final crossAxisCount = isMobile ? 2 : 4;
+                  final childAspectRatio = isMobile ? 1.1 : 1.3;
+                  
+                  return GridView.count(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: isMobile ? 12 : 16,
+                    mainAxisSpacing: isMobile ? 12 : 16,
+                    childAspectRatio: childAspectRatio,
                 children: [
                   _buildModuleCard(
                     context,
@@ -247,6 +255,16 @@ class _DashboardPageState extends State<DashboardPage> {
                     color: Colors.green,
                     onTap: () => _navigateToModule(context, 'transactions'),
                   ),
+                  // Módulo especial para Super Admin
+                  if (widget.user.role == 'super_admin')
+                    _buildModuleCard(
+                      context,
+                      icon: Icons.dashboard_outlined,
+                      title: 'Reportes Consolidados',
+                      subtitle: 'Vista Global de Todos los Negocios',
+                      color: Colors.purple,
+                      onTap: () => _navigateToModule(context, 'consolidated_reports'),
+                    ),
                   _buildModuleCard(
                     context,
                     icon: Icons.analytics,
@@ -287,7 +305,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     color: Colors.grey,
                     onTap: () => _navigateToModule(context, 'settings'),
                   ),
-                ],
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -417,23 +437,23 @@ class _DashboardPageState extends State<DashboardPage> {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   icon,
-                  size: 32,
+                  size: 28,
                   color: color,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -441,13 +461,16 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  fontSize: 11,
                 ),
                 textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -464,6 +487,14 @@ class _DashboardPageState extends State<DashboardPage> {
           builder: (context) => TransactionsPage(
             user: widget.user,
             business: _selectedBusiness!,
+          ),
+        ),
+      );
+    } else if (module == 'consolidated_reports' && widget.user.role == 'super_admin') {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => ConsolidatedReportsPage(
+            user: widget.user,
           ),
         ),
       );

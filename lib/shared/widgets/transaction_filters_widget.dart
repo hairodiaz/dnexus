@@ -93,7 +93,7 @@ class TransactionFiltersWidget extends StatelessWidget {
             context: context,
             value: selectedTypeFilter,
             displayText: selectedTypeFilter == null 
-              ? 'Todo' 
+              ? 'Todos' 
               : '${selectedTypeFilter!.icon} ${selectedTypeFilter!.displayName.substring(0, 3)}',
             items: [
               const DropdownMenuItem<TransactionTypeFilter?>(
@@ -102,7 +102,7 @@ class TransactionFiltersWidget extends StatelessWidget {
                   children: [
                     Text('📋', style: TextStyle(fontSize: 12)),
                     SizedBox(width: 4),
-                    Text('Todo', style: TextStyle(fontSize: 12)),
+                    Text('Todos', style: TextStyle(fontSize: 12)),
                   ],
                 ),
               ),
@@ -138,7 +138,7 @@ class TransactionFiltersWidget extends StatelessWidget {
             context: context,
             value: selectedPaymentFilter,
             displayText: selectedPaymentFilter == null 
-              ? 'Todo' 
+              ? 'Todos' 
               : '${selectedPaymentFilter!.icon} ${selectedPaymentFilter!.displayName.substring(0, 3)}',
             items: [
               const DropdownMenuItem<TransactionPaymentFilter?>(
@@ -147,7 +147,7 @@ class TransactionFiltersWidget extends StatelessWidget {
                   children: [
                     Text('💳', style: TextStyle(fontSize: 12)),
                     SizedBox(width: 4),
-                    Text('Todo', style: TextStyle(fontSize: 12)),
+                    Text('Todos', style: TextStyle(fontSize: 12)),
                   ],
                 ),
               ),
@@ -221,41 +221,52 @@ class TransactionFiltersWidget extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<T>(
-          value: value,
-          isDense: true,
-          isExpanded: true,
-          style: TextStyle(
-            fontSize: 11,
-            color: color,
-            fontWeight: FontWeight.w500,
+      child: Stack(
+        children: [
+          // El dropdown invisible para manejar la funcionalidad
+          DropdownButtonHideUnderline(
+            child: DropdownButton<T>(
+              value: value,
+              isDense: true,
+              isExpanded: true,
+              style: const TextStyle(color: Colors.transparent),
+              items: items,
+              onChanged: onChanged,
+              dropdownColor: Colors.white,
+              icon: const SizedBox.shrink(),
+            ),
           ),
-          selectedItemBuilder: (BuildContext context) {
-            return items.map<Widget>((DropdownMenuItem<T> item) {
-              return Container(
+          // El texto personalizado visible
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Container(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  displayText,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: color,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+                padding: const EdgeInsets.only(left: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        displayText,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: color,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 14,
+                      color: color,
+                    ),
+                  ],
                 ),
-              );
-            }).toList();
-          },
-          items: items,
-          onChanged: onChanged,
-          dropdownColor: Colors.white,
-          icon: Icon(
-            Icons.keyboard_arrow_down,
-            size: 14,
-            color: color,
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

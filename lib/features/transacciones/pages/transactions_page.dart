@@ -203,8 +203,59 @@ class _TransactionsPageState extends State<TransactionsPage> {
               ],
             ],
           ),
-          SizedBox(height: isMobile ? 10 : 16),
-          Row(
+          SizedBox(height: isMobile ? 10 : 12),
+          // Layout responsivo: móvil 2x2, desktop 1x4
+          isMobile ? Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      'Ingresos',
+                      '\$${totalIngresos.toStringAsFixed(2)}',
+                      Icons.trending_up,
+                      Colors.green,
+                      isMobile,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Egresos',
+                      '\$${totalEgresos.toStringAsFixed(2)}',
+                      Icons.trending_down,
+                      Colors.red,
+                      isMobile,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      'Balance',
+                      '\$${balance.toStringAsFixed(2)}',
+                      balance >= 0 ? Icons.account_balance_wallet : Icons.warning,
+                      balance >= 0 ? Colors.blue : Colors.orange,
+                      isMobile,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Transacciones',
+                      '$totalTransacciones',
+                      Icons.receipt_long,
+                      Colors.purple,
+                      isMobile,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ) : Row(
             children: [
               Expanded(
                 child: _buildStatCard(
@@ -215,7 +266,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   isMobile,
                 ),
               ),
-              SizedBox(width: isMobile ? 8 : 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
                   'Egresos',
@@ -225,11 +276,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   isMobile,
                 ),
               ),
-            ],
-          ),
-          SizedBox(height: isMobile ? 8 : 12),
-          Row(
-            children: [
+              SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
                   'Balance',
@@ -239,7 +286,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   isMobile,
                 ),
               ),
-              SizedBox(width: isMobile ? 8 : 12),
+              SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
                   'Transacciones',
@@ -259,7 +306,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
   /// Card individual de estadística mejorada
   Widget _buildStatCard(String title, String value, IconData icon, Color color, [bool isMobile = false]) {
     return Container(
-      padding: EdgeInsets.all(isMobile ? 14 : 18),
+      padding: EdgeInsets.all(isMobile ? 14 : 12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -316,13 +363,13 @@ class _TransactionsPageState extends State<TransactionsPage> {
             ),
           ),
           
-          SizedBox(height: isMobile ? 8 : 10),
+          SizedBox(height: isMobile ? 8 : 6),
           
           // Título mejorado
           Text(
             title,
             style: TextStyle(
-              fontSize: isMobile ? 12 : 13,
+              fontSize: isMobile ? 12 : 11,
               color: Colors.grey[700],
               fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
@@ -330,7 +377,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
             textAlign: TextAlign.center,
           ),
           
-          SizedBox(height: isMobile ? 4 : 6),
+          SizedBox(height: isMobile ? 4 : 3),
           
           // Valor con mejor presentación
           Row(
@@ -351,7 +398,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 child: Text(
                   value.replaceAll('\$', ''),
                   style: TextStyle(
-                    fontSize: isMobile ? 16 : 18,
+                    fontSize: isMobile ? 16 : 15,
                     fontWeight: FontWeight.w800,
                     color: color,
                     letterSpacing: -0.5,
@@ -363,7 +410,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
             ],
           ),
           
-          SizedBox(height: isMobile ? 6 : 8),
+          SizedBox(height: isMobile ? 6 : 4),
           
           // Línea decorativa
           Container(

@@ -91,6 +91,10 @@ class BusinessService {
       if (kIsWeb) {
         AppConfig.logger.d('Web platform - using simulated businesses for user: $userId');
         final allBusinesses = _getSimulatedBusinesses();
+        // Super Admin (ID: 4) puede ver todos los negocios
+        if (userId == 4) {
+          return allBusinesses;
+        }
         return allBusinesses.where((business) => business.propietarioId == userId).toList();
       }
       

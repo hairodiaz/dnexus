@@ -57,6 +57,15 @@ class _LoginPageState extends State<LoginPage> {
           isActive: true,
           createdAt: DateTime.now(),
         ),
+        UserModel(
+          id: 4,
+          username: 'super_admin',
+          email: 'admin@dnexus.com',
+          fullName: 'Super Administrador',
+          role: 'super_admin',
+          isActive: true,
+          createdAt: DateTime.now(),
+        ),
       ];
       setState(() {});
     } catch (e) {
