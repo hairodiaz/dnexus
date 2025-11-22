@@ -1,12 +1,18 @@
-# Flutter/Dart related
+# Flutter/Dart source files (keep only built web files)
+lib/
 .dart_tool/
 .packages
 .pub-cache/
 .pub/
 .flutter-plugins
 .flutter-plugins-dependencies
+pubspec.yaml
+pubspec.lock
+analysis_options.yaml
+.metadata
 
-# Build artifacts
+# Build artifacts except web
+build/
 android/
 ios/
 linux/
@@ -26,13 +32,7 @@ test/
 .DS_Store
 Thumbs.db
 
-# Local env files
+# Local env files  
 .env
 .env.local
 .env.*.local
-
-# Cache
-.dart_tool/
-.packages
-build/
-!build/web/

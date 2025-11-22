@@ -1,0 +1,35 @@
+{
+    "name": "D-Nexus - Sistema de Gestión Empresarial",
+    "short_name": "D-Nexus",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#1976D2",
+    "theme_color": "#1976D2",
+    "description": "Sistema integral de gestión empresarial con módulos de transacciones, contabilidad y administración de negocios.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
