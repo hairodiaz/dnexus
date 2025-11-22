@@ -256,34 +256,128 @@ class _TransactionsPageState extends State<TransactionsPage> {
     );
   }
 
-  /// Card individual de estadística
+  /// Card individual de estadística mejorada
   Widget _buildStatCard(String title, String value, IconData icon, Color color, [bool isMobile = false]) {
     return Container(
-      padding: EdgeInsets.all(isMobile ? 8 : 12),
+      padding: EdgeInsets.all(isMobile ? 14 : 18),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.2)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white,
+            color.withOpacity(0.02),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(isMobile ? 12 : 16),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.12),
+            spreadRadius: 0,
+            blurRadius: isMobile ? 8 : 12,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            spreadRadius: 0,
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+        border: Border.all(
+          color: color.withOpacity(0.15),
+          width: 1,
+        ),
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: isMobile ? 18 : 20),
-          SizedBox(height: isMobile ? 3 : 4),
+          // Contenedor de icono mejorado
+          Container(
+            padding: EdgeInsets.all(isMobile ? 8 : 10),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color.withOpacity(0.15),
+                  color.withOpacity(0.08),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(isMobile ? 8 : 10),
+              border: Border.all(
+                color: color.withOpacity(0.25),
+                width: 1,
+              ),
+            ),
+            child: Icon(
+              icon, 
+              color: color, 
+              size: isMobile ? 22 : 26,
+            ),
+          ),
+          
+          SizedBox(height: isMobile ? 8 : 10),
+          
+          // Título mejorado
           Text(
             title,
             style: TextStyle(
-              fontSize: isMobile ? 11 : 12,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
+              fontSize: isMobile ? 12 : 13,
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.3,
             ),
+            textAlign: TextAlign.center,
           ),
-          SizedBox(height: isMobile ? 1 : 2),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: isMobile ? 13 : 14,
-              fontWeight: FontWeight.bold,
-              color: color,
+          
+          SizedBox(height: isMobile ? 4 : 6),
+          
+          // Valor con mejor presentación
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                '\$',
+                style: TextStyle(
+                  fontSize: isMobile ? 12 : 14,
+                  fontWeight: FontWeight.w500,
+                  color: color.withOpacity(0.8),
+                ),
+              ),
+              SizedBox(width: 2),
+              Flexible(
+                child: Text(
+                  value.replaceAll('\$', ''),
+                  style: TextStyle(
+                    fontSize: isMobile ? 16 : 18,
+                    fontWeight: FontWeight.w800,
+                    color: color,
+                    letterSpacing: -0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          
+          SizedBox(height: isMobile ? 6 : 8),
+          
+          // Línea decorativa
+          Container(
+            height: 2,
+            width: isMobile ? 30 : 40,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  color,
+                  color.withOpacity(0.3),
+                  Colors.transparent,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(1),
             ),
           ),
         ],

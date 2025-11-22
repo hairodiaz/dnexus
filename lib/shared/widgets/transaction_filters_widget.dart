@@ -26,84 +26,266 @@ class TransactionFiltersWidget extends StatelessWidget {
     final isMobile = MediaQuery.of(context).size.width < 600;
     
     return Container(
-      padding: EdgeInsets.all(isMobile ? 12 : 16),
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 8 : 16, 
+        vertical: isMobile ? 6 : 12,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(8),
+        border: Border(
+          bottom: BorderSide(color: Colors.grey[200]!, width: 1),
+        ),
       ),
-      margin: EdgeInsets.all(isMobile ? 8 : 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Título de filtros
-          Row(
-            children: [
-              Icon(
-                Icons.filter_list,
-                size: 20,
-                color: Theme.of(context).primaryColor,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Filtros',
-                style: TextStyle(
-                  fontSize: isMobile ? 14 : 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[800],
+      child: isMobile 
+        ? _buildCompactMobileFilters(context)
+        : _buildDesktopFilters(context),
+    );
+  }
+
+  /// Filtros compactos para móvil - una sola línea
+  Widget _buildCompactMobileFilters(BuildContext context) {
+    return Row(
+      children: [
+        // Icono de filtro
+        Icon(
+          Icons.tune,
+          size: 18,
+          color: Theme.of(context).primaryColor,
+        ),
+        const SizedBox(width: 8),
+        
+        // Dropdown de período (principal)
+        Expanded(
+          flex: 2,
+          child: _buildCompactDropdown(
+            context: context,
+            value: selectedPeriodFilter.displayName,
+            items: TransactionPeriodFilter.values.map((filter) {
+              return DropdownMenuItem<TransactionPeriodFilter>(
+                value: filter,
+                child: Text(
+                  filter.displayName,
+                  style: const TextStyle(fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const Spacer(),
-              if (selectedTypeFilter != null || selectedPaymentFilter != null)
-                TextButton.icon(
-                  onPressed: () {
-                    onTypeFilterChanged(null);
-                    onPaymentFilterChanged(null);
-                  },
-                  icon: const Icon(Icons.clear, size: 16),
-                  label: const Text('Limpiar', style: TextStyle(fontSize: 12)),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.grey[600],
-                    minimumSize: const Size(0, 32),
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                  ),
-                ),
-            ],
+              );
+            }).toList(),
+            onChanged: (value) => onPeriodFilterChanged(value!),
+            color: Colors.blue,
           ),
-          
-          SizedBox(height: isMobile ? 12 : 16),
-          
-          // Layout responsive: columna en móvil, fila en desktop
-          isMobile
-              ? Column(
-                  children: [
-                    _buildPeriodDropdown(context),
-                    const SizedBox(height: 12),
-                    _buildTypeDropdown(context),
-                    const SizedBox(height: 12),
-                    _buildPaymentDropdown(context),
-                  ],
-                )
-              : Row(
-                  children: [
-                    Expanded(child: _buildPeriodDropdown(context)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _buildTypeDropdown(context)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _buildPaymentDropdown(context)),
-                  ],
-                ),
+        ),
+        
+        const SizedBox(width: 6),
+        
+        // Dropdown de tipo (compacto)
+        Expanded(
+          child: _buildCompactDropdown(
+            context: context,
+            value: selectedTypeFilter?.displayName ?? 'Todo',
+            items: [
+              const DropdownMenuItem<TransactionTypeFilter?>(
+                value: null,
+                child: Text('Todo', style: TextStyle(fontSize: 12)),
+              ),
+              ...TransactionTypeFilter.values.map((filter) {
+                return DropdownMenuItem<TransactionTypeFilter?>(
+                  value: filter,
+                  child: Text(
+                    filter.displayName.substring(0, 3), // Solo 3 caracteres
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                );
+              }),
+            ],
+            onChanged: (value) => onTypeFilterChanged(value),
+            color: _getTypeColor(selectedTypeFilter),
+          ),
+        ),
+        
+        const SizedBox(width: 6),
+        
+        // Dropdown de pago (compacto)
+        Expanded(
+          child: _buildCompactDropdown(
+            context: context,
+            value: selectedPaymentFilter?.displayName ?? 'Todo',
+            items: [
+              const DropdownMenuItem<TransactionPaymentFilter?>(
+                value: null,
+                child: Text('Todo', style: TextStyle(fontSize: 12)),
+              ),
+              ...TransactionPaymentFilter.values.map((filter) {
+                return DropdownMenuItem<TransactionPaymentFilter?>(
+                  value: filter,
+                  child: Text(
+                    filter.displayName.substring(0, 3), // Solo 3 caracteres
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                );
+              }),
+            ],
+            onChanged: (value) => onPaymentFilterChanged(value),
+            color: _getPaymentColor(selectedPaymentFilter),
+          ),
+        ),
+        
+        // Botón limpiar (si hay filtros)
+        if (selectedTypeFilter != null || selectedPaymentFilter != null) ...[
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              onTypeFilterChanged(null);
+              onPaymentFilterChanged(null);
+            },
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Icon(
+                Icons.clear,
+                size: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
         ],
+      ],
+    );
+  }
+
+  /// Filtros completos para desktop
+  Widget _buildDesktopFilters(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Título de filtros
+        Row(
+          children: [
+            Icon(
+              Icons.filter_list,
+              size: 20,
+              color: Theme.of(context).primaryColor,
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Filtros',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Spacer(),
+            if (selectedTypeFilter != null || selectedPaymentFilter != null)
+              TextButton.icon(
+                onPressed: () {
+                  onTypeFilterChanged(null);
+                  onPaymentFilterChanged(null);
+                },
+                icon: const Icon(Icons.clear, size: 16),
+                label: const Text('Limpiar', style: TextStyle(fontSize: 12)),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.grey[600],
+                  minimumSize: const Size(0, 32),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+              ),
+          ],
+        ),
+        
+        const SizedBox(height: 16),
+        
+        // Filtros en fila
+        Row(
+          children: [
+            Expanded(child: _buildPeriodDropdown(context)),
+            const SizedBox(width: 12),
+            Expanded(child: _buildTypeDropdown(context)),
+            const SizedBox(width: 12),
+            Expanded(child: _buildPaymentDropdown(context)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Dropdown compacto para móvil
+  Widget _buildCompactDropdown<T>({
+    required BuildContext context,
+    required String value,
+    required List<DropdownMenuItem<T>> items,
+    required ValueChanged<T?> onChanged,
+    required Color color,
+  }) {
+    return Container(
+      height: 32,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          isDense: true,
+          isExpanded: true,
+          style: TextStyle(
+            fontSize: 11,
+            color: color,
+            fontWeight: FontWeight.w500,
+          ),
+          hint: Text(
+            value,
+            style: TextStyle(
+              fontSize: 11,
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+          items: items,
+          onChanged: onChanged,
+          dropdownColor: Colors.white,
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            size: 14,
+            color: color,
+          ),
+        ),
       ),
     );
+  }
+
+  Color _getTypeColor(TransactionTypeFilter? filter) {
+    if (filter == null) return Colors.grey;
+    switch (filter) {
+      case TransactionTypeFilter.ingreso:
+        return Colors.green;
+      case TransactionTypeFilter.egreso:
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Color _getPaymentColor(TransactionPaymentFilter? filter) {
+    if (filter == null) return Colors.grey;
+    switch (filter) {
+      case TransactionPaymentFilter.efectivo:
+        return Colors.green;
+      case TransactionPaymentFilter.tarjeta:
+        return Colors.blue;
+      case TransactionPaymentFilter.banco:
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
   }
 
   /// Construir dropdown de período
@@ -266,31 +448,4 @@ class TransactionFiltersWidget extends StatelessWidget {
     );
   }
 
-  /// Obtener color según el tipo de filtro
-  Color _getTypeColor(TransactionTypeFilter? filter) {
-    if (filter == null) return Colors.grey;
-    switch (filter) {
-      case TransactionTypeFilter.all:
-        return Colors.grey;
-      case TransactionTypeFilter.ingreso:
-        return Colors.green;
-      case TransactionTypeFilter.egreso:
-        return Colors.red;
-    }
-  }
-
-  /// Obtener color según el método de pago
-  Color _getPaymentColor(TransactionPaymentFilter? filter) {
-    if (filter == null) return Colors.grey;
-    switch (filter) {
-      case TransactionPaymentFilter.all:
-        return Colors.grey;
-      case TransactionPaymentFilter.efectivo:
-        return Colors.green;
-      case TransactionPaymentFilter.banco:
-        return Colors.blue;
-      case TransactionPaymentFilter.tarjeta:
-        return Colors.purple;
-    }
-  }
 }
