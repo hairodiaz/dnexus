@@ -1,5 +1,4 @@
 import '../models/journal_entry_model.dart';
-import '../models/chart_of_accounts_model.dart';
 import 'chart_of_accounts_service.dart';
 
 /// Servicio para gestionar los Asientos Contables
