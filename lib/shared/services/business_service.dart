@@ -1,14 +1,47 @@
+import 'package:flutter/foundation.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/database/database_connection.dart';
 import '../models/business_model.dart';
 
 /// Servicio para manejar operaciones relacionadas con negocios
 class BusinessService {
+
+  /// Obtener datos simulados para web
+  static List<BusinessModel> _getSimulatedBusinesses() {
+    return [
+      BusinessModel(
+        id: 1,
+        nombre: 'Mi Negocio Demo',
+        tipo: 'retail',
+        descripcion: 'Negocio de demostración para D-Nexus',
+        propietarioId: 1,
+        activo: true,
+        createdAt: DateTime.now().subtract(const Duration(days: 30)),
+        updatedAt: DateTime.now(),
+      ),
+      BusinessModel(
+        id: 2,
+        nombre: 'Tienda Virtual',
+        tipo: 'ecommerce',
+        descripcion: 'Tienda en línea de ejemplo',
+        propietarioId: 1,
+        activo: true,
+        createdAt: DateTime.now().subtract(const Duration(days: 15)),
+        updatedAt: DateTime.now(),
+      ),
+    ];
+  }
   
   /// Obtener todos los negocios activos
   static Future<List<BusinessModel>> getAllActiveBusinesses() async {
     try {
       AppConfig.logger.d('Getting all active businesses');
+      
+      // Si estamos en web, usar datos simulados
+      if (kIsWeb) {
+        AppConfig.logger.d('Web platform - using simulated businesses');
+        return _getSimulatedBusinesses();
+      }
       
       const query = '''
         SELECT id, nombre, tipo, descripcion, propietario_id, activo, created_at, updated_at
@@ -35,7 +68,7 @@ class BusinessService {
       
     } catch (e) {
       AppConfig.logger.e('Error getting active businesses: $e');
-      return [];
+      return kIsWeb ? _getSimulatedBusinesses() : [];
     }
   }
 
@@ -43,6 +76,12 @@ class BusinessService {
   static Future<List<BusinessModel>> getBusinessesForUser(int userId) async {
     try {
       AppConfig.logger.d('Getting businesses for user: $userId');
+      
+      // Si estamos en web, usar datos simulados
+      if (kIsWeb) {
+        AppConfig.logger.d('Web platform - using simulated businesses for user');
+        return _getSimulatedBusinesses();
+      }
       
       const query = '''
         SELECT id, nombre, tipo, descripcion, propietario_id, activo, created_at, updated_at
@@ -71,7 +110,7 @@ class BusinessService {
       
     } catch (e) {
       AppConfig.logger.e('Error getting businesses for user $userId: $e');
-      return [];
+      return kIsWeb ? _getSimulatedBusinesses() : [];
     }
   }
 
@@ -79,6 +118,13 @@ class BusinessService {
   static Future<BusinessModel?> getBusinessById(int businessId) async {
     try {
       AppConfig.logger.d('Getting business by ID: $businessId');
+      
+      // Si estamos en web, usar datos simulados
+      if (kIsWeb) {
+        AppConfig.logger.d('Web platform - using simulated business by ID');
+        final businesses = _getSimulatedBusinesses();
+        return businesses.where((b) => b.id == businessId).firstOrNull;
+      }
       
       const query = '''
         SELECT id, nombre, tipo, descripcion, propietario_id, activo, created_at, updated_at
@@ -108,6 +154,10 @@ class BusinessService {
       
     } catch (e) {
       AppConfig.logger.e('Error getting business by ID $businessId: $e');
+      if (kIsWeb) {
+        final businesses = _getSimulatedBusinesses();
+        return businesses.where((b) => b.id == businessId).firstOrNull;
+      }
       return null;
     }
   }
