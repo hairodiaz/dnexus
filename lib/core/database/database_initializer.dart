@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'database_connection.dart';
 import 'migrations/migration_manager.dart';
 import 'seeds/seed_manager.dart';
@@ -14,6 +15,15 @@ class DatabaseInitializer {
     try {
       AppConfig.logger.i('Starting D-Nexus database initialization...');
       
+      // Verificar si estamos en web
+      if (kIsWeb) {
+        AppConfig.logger.i('Web platform detected - using simulated data');
+        _isInitialized = true;
+        AppConfig.logger.i('D-Nexus web mode initialization completed successfully');
+        return;
+      }
+      
+      // Solo en plataformas nativas (Windows, macOS, Linux)
       // 1. Conectar a la base de datos
       await DatabaseConnection.initialize();
       
