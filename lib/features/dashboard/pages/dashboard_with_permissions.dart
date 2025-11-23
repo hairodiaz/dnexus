@@ -9,6 +9,7 @@ import '../../transacciones/pages/transactions_page.dart';
 import '../../reports/pages/consolidated_reports_page.dart';
 import '../../clients/pages/clients_page.dart';
 import '../../inventory/pages/inventory_page.dart';
+import '../../employees/pages/employees_page_basic.dart';
 
 /// Dashboard principal de D-Nexus con sistema de permisos
 class DashboardPageWithPermissions extends StatefulWidget {
@@ -654,9 +655,11 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
 
   void _navigateToEmployees() {
     if (checkPermissionOrError(context, widget.user, 'employees_view')) {
-      // Navigator.push para empleados
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Módulo de empleados en desarrollo')),
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EmployeesPageBasic(currentUser: widget.user),
+        ),
       );
     }
   }
