@@ -270,41 +270,38 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
 
   Widget _buildQuickActions() {
     final actions = [
-      // Transacciones - Solo si tiene permisos
-      if (widget.user.hasPermission('transactions_view'))
-        _QuickAction(
-          icon: Icons.account_balance_wallet,
-          title: 'Transacciones',
-          subtitle: 'Gestionar movimientos',
-          color: Colors.blue,
-          onTap: () => _navigateToTransactions(),
-          permissions: ['transactions_view'],
-        ),
+      // Transacciones - Visible para la mayoría de roles
+      _QuickAction(
+        icon: Icons.account_balance_wallet,
+        title: 'Transacciones',
+        subtitle: 'Gestionar movimientos',
+        color: Colors.blue,
+        onTap: () => _navigateToTransactions(),
+        permissions: ['transactions_view'],
+      ),
 
-      // Clientes - Solo si tiene permisos
-      if (widget.user.hasPermission('clients_view'))
-        _QuickAction(
-          icon: Icons.people,
-          title: 'Clientes',
-          subtitle: 'Gestionar clientes',
-          color: Colors.green,
-          onTap: () => _navigateToClients(),
-          permissions: ['clients_view'],
-        ),
+      // Clientes - Visible para todos los roles operativos
+      _QuickAction(
+        icon: Icons.people,
+        title: 'Clientes',
+        subtitle: 'Gestionar clientes',
+        color: Colors.green,
+        onTap: () => _navigateToClients(),
+        permissions: ['clients_view'],
+      ),
 
-      // Inventario - Solo si tiene permisos
-      if (widget.user.hasPermission('inventory_view'))
-        _QuickAction(
-          icon: Icons.inventory,
-          title: 'Inventario',
-          subtitle: 'Gestionar productos',
-          color: Colors.orange,
-          onTap: () => _navigateToInventory(),
-          permissions: ['inventory_view'],
-        ),
+      // Inventario - Visible para todos los roles operativos
+      _QuickAction(
+        icon: Icons.inventory,
+        title: 'Inventario',
+        subtitle: 'Gestionar productos',
+        color: Colors.orange,
+        onTap: () => _navigateToInventory(),
+        permissions: ['inventory_view'],
+      ),
 
       // Facturación - Solo si puede facturar
-      if (widget.user.canInvoice)
+      if (widget.user.role == 'super_admin' || widget.user.role == 'admin' || widget.user.role == 'facturador')
         _QuickAction(
           icon: Icons.receipt_long,
           title: 'Facturación',
@@ -314,8 +311,8 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
           permissions: ['invoicing_create'],
         ),
 
-      // Reportes - Solo si tiene permisos
-      if (widget.user.hasPermission('reports_view'))
+      // Reportes - Visible para administradores
+      if (widget.user.role == 'super_admin' || widget.user.role == 'admin')
         _QuickAction(
           icon: Icons.analytics,
           title: 'Reportes',
@@ -326,7 +323,7 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
         ),
 
       // Empleados - Solo administradores
-      if (widget.user.canManageEmployees)
+      if (widget.user.role == 'super_admin' || widget.user.role == 'admin')
         _QuickAction(
           icon: Icons.badge,
           title: 'Empleados',
@@ -337,7 +334,7 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
         ),
 
       // Configuración - Solo administradores
-      if (widget.user.canAccessSettings)
+      if (widget.user.role == 'super_admin' || widget.user.role == 'admin')
         _QuickAction(
           icon: Icons.settings,
           title: 'Configuración',

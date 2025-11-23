@@ -33,7 +33,7 @@ class _EmployeesPageBasicState extends State<EmployeesPageBasic> {
     });
 
     // Cargar empleados según permisos del usuario
-    if (widget.currentUser.role == 'SuperAdmin') {
+    if (widget.currentUser.role == 'super_admin') {
       employees = EmployeeService.getAllEmployees();
     } else {
       // Admin y otros roles solo ven empleados de su negocio
@@ -327,7 +327,7 @@ class _EmployeesPageBasicState extends State<EmployeesPageBasic> {
   }
 
   bool _canManageEmployees() {
-    return widget.currentUser.role == 'SuperAdmin' || 
-           widget.currentUser.role == 'Admin';
+    return widget.currentUser.role == 'super_admin' || 
+           widget.currentUser.role == 'admin';
   }
 }

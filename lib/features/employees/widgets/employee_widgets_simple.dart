@@ -144,8 +144,8 @@ class EmployeeCard extends StatelessWidget {
   }
 
   bool _canEdit() {
-    return currentUser.role == 'SuperAdmin' || 
-           currentUser.role == 'Admin';
+    return currentUser.role == 'super_admin' || 
+           currentUser.role == 'admin';
   }
 }
 
