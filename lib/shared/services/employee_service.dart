@@ -1,6 +1,5 @@
 import '../models/employee_model.dart';
 import '../models/user_role.dart';
-import '../models/user_model.dart';
 
 /// Servicio para gestionar empleados del sistema multi-negocio
 class EmployeeService {

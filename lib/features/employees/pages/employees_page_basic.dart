@@ -33,12 +33,12 @@ class _EmployeesPageBasicState extends State<EmployeesPageBasic> {
     });
 
     // Cargar empleados según permisos del usuario
-    if (widget.currentUser.userRole == UserRole.superAdmin) {
+    if (widget.currentUser.role == 'SuperAdmin') {
       employees = EmployeeService.getAllEmployees();
     } else {
       // Admin y otros roles solo ven empleados de su negocio
       employees = EmployeeService.getEmployeesByBusiness(
-        widget.currentUser.businessId ?? 'business_ferreteria'
+        'business_ferreteria' // Por ahora fijo, después se puede hacer dinámico
       );
     }
     
@@ -327,7 +327,7 @@ class _EmployeesPageBasicState extends State<EmployeesPageBasic> {
   }
 
   bool _canManageEmployees() {
-    return widget.currentUser.userRole == UserRole.superAdmin || 
-           widget.currentUser.userRole == UserRole.admin;
+    return widget.currentUser.role == 'SuperAdmin' || 
+           widget.currentUser.role == 'Admin';
   }
 }

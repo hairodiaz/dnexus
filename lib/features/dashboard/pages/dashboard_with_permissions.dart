@@ -5,8 +5,8 @@ import '../../../shared/models/user_role.dart';
 import '../../../shared/models/business_model.dart';
 import '../../../shared/services/business_service.dart';
 import '../../../shared/widgets/permission_widgets.dart';
-import '../../transacciones/pages/transactions_page.dart';
-import '../../reports/pages/consolidated_reports_page.dart';
+// import '../../transacciones/pages/transactions_page.dart';
+// import '../../reports/pages/consolidated_reports_page.dart';
 import '../../clients/pages/clients_page.dart';
 import '../../inventory/pages/inventory_page.dart';
 import '../../employees/pages/employees_page_basic.dart';
@@ -596,14 +596,9 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
   // Métodos de navegación con verificación de permisos
   void _navigateToTransactions() {
     if (checkPermissionOrError(context, widget.user, 'transactions_view')) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TransactionsPage(
-            user: widget.user,
-            businessId: _selectedBusiness?.id,
-          ),
-        ),
+      // Navegación temporal deshabilitada
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Módulo de transacciones en desarrollo')),
       );
     }
   }
@@ -613,7 +608,7 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ClientsPage(user: widget.user),
+          builder: (context) => ClientsPage(),
         ),
       );
     }
@@ -644,11 +639,8 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
 
   void _navigateToReports() {
     if (checkPermissionOrError(context, widget.user, 'reports_view')) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ConsolidatedReportsPage(user: widget.user),
-        ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Módulo de reportes en desarrollo')),
       );
     }
   }
@@ -713,4 +705,30 @@ class _QuickAction {
     required this.onTap,
     required this.permissions,
   });
+}
+
+/// Widget temporal simple para UserRoleCard
+class UserRoleCard extends StatelessWidget {
+  final UserModel user;
+  final bool? showPermissions;
+
+  const UserRoleCard({Key? key, required this.user, this.showPermissions}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Text(
+              'Bienvenido, ${user.fullName ?? user.username}',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Text('Rol: ${user.role}'),
+          ],
+        ),
+      ),
+    );
+  }
 }
