@@ -8,15 +8,14 @@ import '../../../shared/services/business_service.dart';
 import '../../../shared/services/auth_service_with_roles.dart';
 import '../../../shared/widgets/permission_widgets.dart';
 import '../../../core/utils/currency_formatter.dart';
-// import '../../transacciones/pages/transactions_page.dart';
-// import '../../reports/pages/consolidated_reports_page.dart';
-import '../../clients/pages/clients_page.dart';
-import '../../inventory/pages/inventory_page.dart';
-import '../../employees/pages/employees_page_basic.dart';
+import '../../transacciones/pages/transactions_page.dart';
+import '../../cash_register/pages/cash_register_page.dart';
 import '../../invoices/pages/invoice_list_page.dart';
 import '../../invoices/pages/create_invoice_simple.dart';
 import '../../invoices/pages/cashier_simple.dart';
-import '../../cash_register/pages/cash_register_page.dart';
+import '../../clients/pages/clients_page.dart';
+import '../../inventory/pages/inventory_page.dart';
+import '../../employees/pages/employees_page_basic.dart';
 import '../../../shared/services/client_service.dart';
 import '../../../shared/services/inventory_service.dart';
 import '../widgets/professional_stats_card.dart';
@@ -1049,10 +1048,21 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
   // Métodos de navegación con verificación de permisos
   void _navigateToTransactions() {
     if (checkPermissionOrError(context, widget.user, 'transactions_view')) {
-      // Navegación temporal deshabilitada
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Módulo de transacciones en desarrollo')),
-      );
+      if (_selectedBusiness != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TransactionsPage(
+              user: widget.user,
+              business: _selectedBusiness!,
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Selecciona un negocio primero')),
+        );
+      }
     }
   }
 
