@@ -239,44 +239,31 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
                         ),
                       ],
                     ),
-                    child: LayoutBuilder(
-                      builder: (context, panelConstraints) {
-                        return SingleChildScrollView(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minHeight: panelConstraints.maxHeight,
-                            ),
-                            child: IntrinsicHeight(
-                              child: Column(
-                                children: [
-                                  // Parte fija del panel
-                                  Padding(
-                                    padding: EdgeInsets.all(screenWidth < 1200 ? 16 : 24),
-                                    child: Column(
-                                      children: [
-                                        _buildWelcomeCard(),
-                                        _buildBusinessSelector(),
-                                        const SizedBox(height: 20),
-                                      ],
-                                    ),
-                                  ),
-                                  // Acciones rápidas que se expanden según necesidad
-                                  Flexible(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: screenWidth < 1200 ? 16 : 24,
-                                      ),
-                                      child: _buildQuickActions(),
-                                    ),
-                                  ),
-                                  // Espacio adicional al final
-                                  const SizedBox(height: 20),
-                                ],
-                              ),
-                            ),
+                    child: Column(
+                      children: [
+                        // Parte fija del panel
+                        Padding(
+                          padding: EdgeInsets.all(screenWidth < 1200 ? 16 : 24),
+                          child: Column(
+                            children: [
+                              _buildWelcomeCard(),
+                              _buildBusinessSelector(),
+                              const SizedBox(height: 20),
+                            ],
                           ),
-                        );
-                      },
+                        ),
+                        // Acciones rápidas con scroll solo cuando sea necesario
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth < 1200 ? 16 : 24,
+                            ),
+                            child: _buildQuickActions(),
+                          ),
+                        ),
+                        // Espacio adicional al final
+                        const SizedBox(height: 20),
+                      ],
                     ),
                   ),
                 );
@@ -448,15 +435,17 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
 
   Widget _buildQuickActions() {
     final actions = [
-      // Transacciones - Visible para la mayoría de roles
-      _QuickAction(
-        icon: Icons.account_balance_wallet,
-        title: 'Transacciones',
-        subtitle: 'Gestionar movimientos',
-        color: Colors.blue,
-        onTap: () => _navigateToTransactions(),
-        permissions: ['transactions_view'],
-      ),
+      // Transacciones - Solo para administradores (no cajeros ni facturadores)
+      if (widget.user.userRole == UserRole.admin || 
+          widget.user.userRole == UserRole.superAdmin)
+        _QuickAction(
+          icon: Icons.account_balance_wallet,
+          title: 'Transacciones',
+          subtitle: 'Gestionar movimientos',
+          color: Colors.blue,
+          onTap: () => _navigateToTransactions(),
+          permissions: ['transactions_view'],
+        ),
 
       // Clientes - Visible para todos los roles operativos
       _QuickAction(
@@ -589,25 +578,54 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
               ],
             ),
             SizedBox(height: isSmallPanel ? 8 : 12),
-            Flexible(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxHeight: 400),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: actions.map((action) => 
-                      PermissionWidget(
-                        user: widget.user,
-                        requiredPermissions: action.permissions,
-                        requireAll: false,
-                        child: Container(
-                          margin: EdgeInsets.only(bottom: isSmallPanel ? 6 : 8),
-                          child: _buildActionCard(action, isSmallPanel),
-                        ),
-                      )
-                    ).toList(),
-                  ),
-                ),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, actionConstraints) {
+                  // Filtrar acciones que el usuario puede ver
+                  final visibleActions = actions.where((action) {
+                    return widget.user.hasPermission(action.permissions.first) ||
+                           action.permissions.isEmpty;
+                  }).toList();
+                  
+                  // Calcular altura aproximada necesaria
+                  final itemHeight = isSmallPanel ? 70.0 : 78.0;
+                  final totalHeight = visibleActions.length * itemHeight;
+                  final availableHeight = actionConstraints.maxHeight;
+                  
+                  // Solo usar scroll si realmente es necesario
+                  if (totalHeight <= availableHeight) {
+                    return Column(
+                      children: visibleActions.map((action) => 
+                        PermissionWidget(
+                          user: widget.user,
+                          requiredPermissions: action.permissions,
+                          requireAll: false,
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: isSmallPanel ? 6 : 8),
+                            child: _buildActionCard(action, isSmallPanel),
+                          ),
+                        )
+                      ).toList(),
+                    );
+                  } else {
+                    return SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        children: visibleActions.map((action) => 
+                          PermissionWidget(
+                            user: widget.user,
+                            requiredPermissions: action.permissions,
+                            requireAll: false,
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: isSmallPanel ? 6 : 8),
+                              child: _buildActionCard(action, isSmallPanel),
+                            ),
+                          )
+                        ).toList(),
+                      ),
+                    );
+                  }
+                },
               ),
             ),
           ],
