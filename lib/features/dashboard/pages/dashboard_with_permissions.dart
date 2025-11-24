@@ -239,31 +239,44 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
                         ),
                       ],
                     ),
-                    child: Column(
-                      children: [
-                        // Parte fija del panel
-                        Padding(
-                          padding: EdgeInsets.all(screenWidth < 1200 ? 16 : 24),
-                          child: Column(
-                            children: [
-                              _buildWelcomeCard(),
-                              _buildBusinessSelector(),
-                              const SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
-                        // Parte scrollable del panel
-                        Expanded(
-                          child: SingleChildScrollView(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: screenWidth < 1200 ? 16 : 24,
+                    child: LayoutBuilder(
+                      builder: (context, panelConstraints) {
+                        return SingleChildScrollView(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: panelConstraints.maxHeight,
                             ),
-                            child: _buildQuickActions(),
+                            child: IntrinsicHeight(
+                              child: Column(
+                                children: [
+                                  // Parte fija del panel
+                                  Padding(
+                                    padding: EdgeInsets.all(screenWidth < 1200 ? 16 : 24),
+                                    child: Column(
+                                      children: [
+                                        _buildWelcomeCard(),
+                                        _buildBusinessSelector(),
+                                        const SizedBox(height: 20),
+                                      ],
+                                    ),
+                                  ),
+                                  // Acciones rápidas que se expanden según necesidad
+                                  Flexible(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: screenWidth < 1200 ? 16 : 24,
+                                      ),
+                                      child: _buildQuickActions(),
+                                    ),
+                                  ),
+                                  // Espacio adicional al final
+                                  const SizedBox(height: 20),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                        // Espacio adicional al final
-                        const SizedBox(height: 20),
-                      ],
+                        );
+                      },
                     ),
                   ),
                 );
@@ -271,9 +284,19 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
             ),
             // Contenido principal
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: _buildStatCards(),
+              child: LayoutBuilder(
+                builder: (context, mainConstraints) {
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    physics: const BouncingScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: mainConstraints.maxHeight - 48, // menos padding
+                      ),
+                      child: _buildStatCards(),
+                    ),
+                  );
+                },
               ),
             ),
           ],
