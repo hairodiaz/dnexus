@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../shared/models/client_model.dart';
-import '../../shared/services/client_service.dart';
-import '../../shared/widgets/client_dialogs.dart';
+import '../../../shared/models/client_model.dart';
+import '../../../shared/services/client_service.dart';
+import '../../../shared/widgets/client_dialogs.dart';
 
 /// Página principal de gestión de clientes unificados
 class ClientsPage extends StatefulWidget {

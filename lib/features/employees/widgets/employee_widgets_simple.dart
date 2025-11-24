@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../shared/models/employee_model.dart';
 import '../../../shared/models/user_model.dart';
-import '../../../shared/models/user_role.dart';
 
 /// Card simple para mostrar información de un empleado
 class EmployeeCard extends StatelessWidget {

@@ -10,14 +10,82 @@ class ClientService {
   // Base de datos simulada de clientes
   final List<ClientModel> _clients = [];
   int _nextId = 1;
+  bool _isInitialized = false;
+
+  /// Inicializa el servicio con datos de ejemplo
+  void _initializeIfNeeded() {
+    if (_isInitialized) return;
+
+    _clients.addAll([
+      ClientModel(
+        id: 'CLI${_nextId++}',
+        cedula: '001-1234567-8',
+        nombreCompleto: 'Juan Pérez Martínez',
+        telefono: '809-555-0001',
+        email: 'juan.perez@email.com',
+        direccion: 'Calle Principal #123, Santo Domingo',
+        activo: true,
+        fechaRegistro: DateTime.now().subtract(const Duration(days: 30)),
+        negociosAsociados: ['repuestos', 'electrodomesticos'],
+      ),
+      ClientModel(
+        id: 'CLI${_nextId++}',
+        cedula: '001-2345678-9',
+        nombreCompleto: 'María García López',
+        telefono: '809-555-0002',
+        email: 'maria.garcia@email.com',
+        direccion: 'Av. Independencia #456, Santo Domingo',
+        activo: true,
+        fechaRegistro: DateTime.now().subtract(const Duration(days: 25)),
+        negociosAsociados: ['electrodomesticos'],
+      ),
+      ClientModel(
+        id: 'CLI${_nextId++}',
+        cedula: '001-3456789-0',
+        nombreCompleto: 'Carlos Martínez Rodríguez',
+        telefono: '809-555-0003',
+        email: 'carlos.martinez@email.com',
+        direccion: 'Calle Duarte #789, Santiago',
+        activo: true,
+        fechaRegistro: DateTime.now().subtract(const Duration(days: 20)),
+        negociosAsociados: ['repuestos'],
+      ),
+      ClientModel(
+        id: 'CLI${_nextId++}',
+        cedula: '001-4567890-1',
+        nombreCompleto: 'Ana López Fernández',
+        telefono: '809-555-0004',
+        email: 'ana.lopez@email.com',
+        direccion: 'Av. 27 de Febrero #321, Santo Domingo',
+        activo: true,
+        fechaRegistro: DateTime.now().subtract(const Duration(days: 15)),
+        negociosAsociados: ['prestamos'],
+      ),
+      ClientModel(
+        id: 'CLI${_nextId++}',
+        cedula: '001-5678901-2',
+        nombreCompleto: 'Pedro Rodríguez Santos',
+        telefono: '809-555-0005',
+        email: 'pedro.rodriguez@email.com',
+        direccion: 'Calle Mella #654, La Romana',
+        activo: true,
+        fechaRegistro: DateTime.now().subtract(const Duration(days: 10)),
+        negociosAsociados: ['repuestos', 'electrodomesticos', 'prestamos'],
+      ),
+    ]);
+
+    _isInitialized = true;
+  }
 
   /// Obtiene todos los clientes activos
   List<ClientModel> getAllClients() {
+    _initializeIfNeeded();
     return _clients.where((client) => client.activo).toList();
   }
 
   /// Busca clientes por cédula (exacta)
   ClientModel? findByCedula(String cedula) {
+    _initializeIfNeeded();
     try {
       return _clients.firstWhere(
         (client) => client.cedula == cedula && client.activo,
@@ -29,6 +97,7 @@ class ClientService {
 
   /// Busca clientes por nombre (parcial, case-insensitive)
   List<ClientModel> searchByName(String query) {
+    _initializeIfNeeded();
     if (query.isEmpty) return getAllClients();
     
     final queryLower = query.toLowerCase();
@@ -40,6 +109,7 @@ class ClientService {
 
   /// Busca clientes por teléfono (parcial)
   List<ClientModel> searchByPhone(String phone) {
+    _initializeIfNeeded();
     if (phone.isEmpty) return [];
     
     return _clients.where((client) =>
@@ -265,5 +335,22 @@ class ClientService {
       'clientes_prestamos': getClientsByBusiness('prestamos').length,
       'clientes_multiples': activeClients.where((c) => c.negociosAsociados.length > 1).length,
     };
+  }
+
+  /// Actualizar información de última compra del cliente
+  static Future<void> updateClientPurchase(String clientId, double amount, DateTime date) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    final service = ClientService();
+    final clientIndex = service._clients.indexWhere((c) => c.id == int.parse(clientId));
+    
+    if (clientIndex != -1) {
+      // Actualizar cliente con nueva compra
+      // En una implementación real, esto actualizaría campos como:
+      // - ultimaCompra: date
+      // - totalCompras: amount + previousTotal
+      // Por ahora es solo simulación
+      print('Cliente $clientId actualizado - Compra: \$${amount.toStringAsFixed(0)} en $date');
+    }
   }
 }

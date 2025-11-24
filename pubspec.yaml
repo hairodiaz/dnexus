@@ -34,6 +34,7 @@ dependencies:
   
   # Logs y debug
   logger: ^2.0.2
+  equatable: ^2.0.7
 
 dev_dependencies:
   flutter_test:

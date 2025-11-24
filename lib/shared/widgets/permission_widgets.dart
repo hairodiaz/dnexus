@@ -95,7 +95,7 @@ class ProfileCard extends StatelessWidget {
       child: ListTile(
         leading: Icon(
           _getRoleIcon(user.userRole),
-          color: Color(user.roleColor),
+          color: Color(user.roleColor ?? 0xFF2196F3),
           size: 32,
         ),
         title: Text(
@@ -108,7 +108,7 @@ class ProfileCard extends StatelessWidget {
             Text(
               user.roleDisplayName,
               style: TextStyle(
-                color: Color(user.roleColor),
+                color: Color(user.roleColor ?? 0xFF2196F3),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -173,15 +173,15 @@ class UserPermissionsView extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Color(user.roleColor).withOpacity(0.1),
+            color: Color(user.roleColor ?? 0xFF2196F3).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Color(user.roleColor).withOpacity(0.3)),
+            border: Border.all(color: Color(user.roleColor ?? 0xFF2196F3).withOpacity(0.3)),
           ),
           child: Row(
             children: [
               Icon(
                 _getRoleIcon(user.userRole),
-                color: Color(user.roleColor),
+                color: Color(user.roleColor ?? 0xFF2196F3),
                 size: 32,
               ),
               const SizedBox(width: 16),
@@ -194,7 +194,7 @@ class UserPermissionsView extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(user.roleColor),
+                        color: Color(user.roleColor ?? 0xFF2196F3),
                       ),
                     ),
                     Text(

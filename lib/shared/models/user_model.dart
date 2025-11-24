@@ -1,3 +1,5 @@
+import 'user_role.dart';
+
 /// Modelo de usuario para el sistema D-Nexus
 class UserModel {
   final int id;
@@ -8,6 +10,9 @@ class UserModel {
   final bool isActive;
   final DateTime createdAt;
   final DateTime? lastLogin;
+  final String? businessId;
+  final int? roleIcon;
+  final int? roleColor;
 
   const UserModel({
     required this.id,
@@ -18,7 +23,13 @@ class UserModel {
     required this.isActive,
     required this.createdAt,
     this.lastLogin,
+    this.businessId,
+    this.roleIcon,
+    this.roleColor,
   });
+
+  /// Obtiene el rol como enum
+  UserRole get userRole => UserRole.fromString(role);
 
   /// Constructor para crear un usuario desde un Map (resultado de base de datos)
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -33,6 +44,9 @@ class UserModel {
       lastLogin: map['last_login'] != null 
         ? DateTime.parse(map['last_login'] as String)
         : null,
+      businessId: map['business_id'] as String?,
+      roleIcon: map['role_icon'] as int?,
+      roleColor: map['role_color'] as int?,
     );
   }
 
@@ -47,6 +61,9 @@ class UserModel {
       'is_active': isActive,
       'created_at': createdAt.toIso8601String(),
       'last_login': lastLogin?.toIso8601String(),
+      'business_id': businessId,
+      'role_icon': roleIcon,
+      'role_color': roleColor,
     };
   }
 
@@ -60,6 +77,9 @@ class UserModel {
     bool? isActive,
     DateTime? createdAt,
     DateTime? lastLogin,
+    String? businessId,
+    int? roleIcon,
+    int? roleColor,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -70,6 +90,9 @@ class UserModel {
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
       lastLogin: lastLogin ?? this.lastLogin,
+      businessId: businessId ?? this.businessId,
+      roleIcon: roleIcon ?? this.roleIcon,
+      roleColor: roleColor ?? this.roleColor,
     );
   }
 

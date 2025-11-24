@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import '../../../shared/models/user_model.dart';
 import '../../../shared/models/business_model.dart';
 import '../../../shared/services/business_service.dart';
+import '../../../shared/services/auth_service_with_roles.dart';
 import '../../transacciones/pages/transactions_page.dart';
 import '../../reports/pages/consolidated_reports_page.dart';
 import '../../clients/pages/clients_page.dart';
 import '../../inventory/pages/inventory_page.dart';
+import '../../employees/pages/employees_page_basic.dart';
 
 /// Dashboard principal de D-Nexus
 class DashboardPage extends StatefulWidget {
@@ -299,6 +301,16 @@ class _DashboardPageState extends State<DashboardPage> {
                     color: Colors.teal,
                     onTap: () => _navigateToModule(context, 'clients'),
                   ),
+                  // Módulo de Empleados - Solo para admin y super_admin
+                  if (widget.user.role == 'admin' || widget.user.role == 'super_admin')
+                    _buildModuleCard(
+                      context,
+                      icon: Icons.badge,
+                      title: 'Empleados',
+                      subtitle: 'Gestión de Personal',
+                      color: Colors.teal,
+                      onTap: () => _navigateToModule(context, 'employees'),
+                    ),
                   _buildModuleCard(
                     context,
                     icon: Icons.settings,
@@ -515,6 +527,14 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ),
       );
+    } else if (module == 'employees' && (widget.user.role == 'admin' || widget.user.role == 'super_admin')) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => EmployeesPageBasic(
+            currentUser: widget.user,
+          ),
+        ),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -572,9 +592,19 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop(); // Cerrar diálogo
-              Navigator.of(context).pushReplacementNamed('/login');
+              
+              // Limpiar la sesión
+              await AuthService.logout();
+              
+              // Navegar al login limpiando todo el stack
+              if (context.mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/login',
+                  (route) => false,
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red[600],

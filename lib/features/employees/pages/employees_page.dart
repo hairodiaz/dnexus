@@ -4,8 +4,8 @@ import '../../../shared/models/user_model.dart';
 import '../../../shared/models/user_role.dart';
 import '../../../shared/services/employee_service.dart';
 import '../../../shared/widgets/permission_widgets.dart';
-// import '../widgets/employee_widgets.dart';
-// import '../widgets/employee_dialogs.dart';
+import '../widgets/employee_widgets_simple.dart';
+import '../widgets/employee_dialogs.dart';
 
 /// Página principal para gestión de empleados
 class EmployeesPage extends StatefulWidget {

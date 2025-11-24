@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../shared/models/employee_model.dart';
 import '../../../shared/models/user_model.dart';
-import '../../../shared/models/user_role.dart';
 import '../../../shared/services/employee_service.dart';
+import 'employee_form_simple.dart';
 
 /// Página básica de empleados - versión simple que funciona
 class EmployeesPageBasic extends StatefulWidget {
@@ -49,11 +49,7 @@ class _EmployeesPageBasicState extends State<EmployeesPageBasic> {
 
   @override
   Widget build(BuildContext context) {
-    final stats = EmployeeService.getEmployeeStats(
-      widget.currentUser.userRole == UserRole.superAdmin 
-          ? null 
-          : widget.currentUser.businessId
-    );
+    final stats = EmployeeService.getEmployeeStats(null);
 
     return Scaffold(
       appBar: AppBar(
@@ -318,10 +314,12 @@ class _EmployeesPageBasicState extends State<EmployeesPageBasic> {
   }
 
   void _showAddDialog() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Funcionalidad de agregar empleado disponible próximamente'),
-        backgroundColor: Colors.blue,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EmployeeFormPage(
+          currentUser: widget.currentUser,
+        ),
       ),
     );
   }

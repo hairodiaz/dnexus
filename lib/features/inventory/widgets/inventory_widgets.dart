@@ -4,6 +4,7 @@ import '../../../shared/models/user_model.dart';
 import '../../../shared/models/user_extensions.dart';
 import '../../../shared/models/product_model.dart';
 import '../../../shared/services/inventory_service.dart';
+import '../../../core/utils/currency_formatter.dart';
 
 // Exportar widgets adicionales
 export 'inventory_dialogs.dart';
@@ -335,19 +336,14 @@ class ProductCard extends StatelessWidget {
   }
 
   String _formatPrice(double price) {
-    if (price >= 1000000) {
-      return '${(price / 1000000).toStringAsFixed(1)}M';
-    } else if (price >= 1000) {
-      return '${(price / 1000).toStringAsFixed(0)}K';
-    }
-    return price.toStringAsFixed(0);
+    return CurrencyFormatter.formatForDashboard(price);
   }
 
   String _getPriceDisplay() {
     if (product.hasMultipleUnits && product.packagePrice != null) {
-      return 'Unidad: \$${_formatPrice(product.salePrice)}\n${product.packageName}: \$${_formatPrice(product.packagePrice!)}';
+      return 'Unidad: ${CurrencyFormatter.formatForDashboard(product.salePrice)}\n${product.packageName}: ${CurrencyFormatter.formatForDashboard(product.packagePrice!)}';
     }
-    return '\$${_formatPrice(product.salePrice)}';
+    return CurrencyFormatter.formatForDashboard(product.salePrice);
   }
 }
 

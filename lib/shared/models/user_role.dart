@@ -231,6 +231,32 @@ class Permission {
       module: 'reports',
     ),
 
+    // Módulo de Caja Registradora
+    Permission(
+      id: 'cash_register_view',
+      name: 'Ver Caja Registradora',
+      description: 'Puede ver el estado de la caja registradora',
+      module: 'cash_register',
+    ),
+    Permission(
+      id: 'cash_register_open',
+      name: 'Abrir Caja',
+      description: 'Puede abrir una caja registradora',
+      module: 'cash_register',
+    ),
+    Permission(
+      id: 'cash_register_close',
+      name: 'Cerrar Caja',
+      description: 'Puede cerrar una caja registradora',
+      module: 'cash_register',
+    ),
+    Permission(
+      id: 'cash_register_history',
+      name: 'Historial de Caja',
+      description: 'Puede ver el historial de cajas registradoras',
+      module: 'cash_register',
+    ),
+
     // Módulo de Configuración
     Permission(
       id: 'settings_view',
@@ -267,6 +293,7 @@ class RolePermissions {
       'inventory_view', 'inventory_create', 'inventory_edit', 'inventory_receive',
       'invoicing_create', 'invoicing_process', 'invoicing_cancel',
       'employees_view', 'employees_create', 'employees_edit',
+      'cash_register_view', 'cash_register_open', 'cash_register_close', 'cash_register_history',
       'reports_view', 'reports_consolidated',
       'settings_view', 'settings_edit',
     ],
@@ -278,6 +305,7 @@ class RolePermissions {
       'inventory_view', 'inventory_create', 'inventory_edit', 'inventory_receive',
       'invoicing_create', 'invoicing_process', 'invoicing_cancel',
       'employees_view', 'employees_create', 'employees_edit',
+      'cash_register_view', 'cash_register_open', 'cash_register_close', 'cash_register_history',
       'reports_view',
       'settings_view', 'settings_edit',
     ],
@@ -288,6 +316,7 @@ class RolePermissions {
       'clients_view', 'clients_create', 'clients_edit',
       'inventory_view', 'inventory_receive', // Puede recibir mercancía
       'invoicing_create', 'invoicing_process', 'invoicing_cancel',
+      'cash_register_view', 'cash_register_open', 'cash_register_close', 'cash_register_history',
     ],
 
     UserRole.facturador: [

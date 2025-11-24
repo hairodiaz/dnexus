@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'core/database/database_initializer.dart';
 import 'core/config/app_config.dart';
 import 'features/auth/pages/login_page.dart';
-import 'features/dashboard/pages/dashboard_page.dart';
+import 'features/dashboard/pages/dashboard_with_permissions.dart';
 import 'shared/models/user_model.dart';
 
 void main() async {
@@ -61,7 +61,7 @@ class DNexusApp extends StatelessWidget {
           if (user == null) {
             return const LoginPage();
           }
-          return DashboardPage(user: user);
+          return DashboardPageWithPermissions(user: user);
         },
       },
       onUnknownRoute: (settings) {

@@ -325,14 +325,14 @@ class _LoginWithRolesPageState extends State<LoginWithRolesPage> {
             content: Row(
               children: [
                 Icon(
-                  IconData(result.user!.roleIcon, fontFamily: 'MaterialIcons'),
+                  IconData(result.user!.roleIcon ?? 0xe7fd, fontFamily: 'MaterialIcons'),
                   color: Colors.white,
                 ),
                 const SizedBox(width: 8),
                 Expanded(child: Text(result.message)),
               ],
             ),
-            backgroundColor: Color(result.user!.roleColor),
+            backgroundColor: Color(result.user!.roleColor ?? 0xFF2196F3),
             duration: const Duration(seconds: 2),
           ),
         );

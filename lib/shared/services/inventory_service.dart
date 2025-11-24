@@ -8,9 +8,129 @@ class InventoryService {
   static final List<InventoryMovement> _movements = [];
   static int _nextProductId = 1;
   static int _nextMovementId = 1;
+  static bool _isInitialized = false;
+
+  /// Inicializa el servicio con productos de ejemplo
+  static void _initializeIfNeeded() {
+    if (_isInitialized) return;
+
+    _products.addAll([
+      ProductModel(
+        id: _nextProductId++,
+        businessId: 1,
+        code: 'PROD001',
+        name: 'Amortiguador Delantero Toyota Corolla',
+        description: 'Amortiguador delantero compatible con Toyota Corolla 2010-2018',
+        category: 'Suspensión',
+        purchasePrice: 2100.00,
+        salePrice: 3500.00,
+        currentStock: 15,
+        minStock: 5,
+        maxStock: 50,
+        unit: 'unidad',
+        location: 'Estante A-1',
+        supplier: 'Repuestos Premium',
+        isActive: true,
+        createdAt: DateTime.now().subtract(const Duration(days: 30)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 30)),
+        canSellByUnit: true,
+        canSellByPackage: false,
+      ),
+      ProductModel(
+        id: _nextProductId++,
+        businessId: 1,
+        code: 'PROD002',
+        name: 'Filtro de Aceite Honda Civic',
+        description: 'Filtro de aceite original para Honda Civic 2016-2022',
+        category: 'Filtros',
+        purchasePrice: 280.00,
+        salePrice: 450.00,
+        currentStock: 32,
+        minStock: 10,
+        maxStock: 100,
+        unit: 'unidad',
+        location: 'Estante B-2',
+        supplier: 'Auto Partes Express',
+        isActive: true,
+        createdAt: DateTime.now().subtract(const Duration(days: 25)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 25)),
+        canSellByUnit: true,
+        canSellByPackage: false,
+      ),
+      ProductModel(
+        id: _nextProductId++,
+        businessId: 1,
+        code: 'PROD003',
+        name: 'Pastillas de Freno Nissan Sentra',
+        description: 'Pastillas de freno cerámicas Nissan Sentra 2013-2019',
+        category: 'Frenos',
+        purchasePrice: 720.00,
+        salePrice: 1200.00,
+        currentStock: 8,
+        minStock: 5,
+        maxStock: 40,
+        unit: 'juego',
+        location: 'Estante C-1',
+        supplier: 'Frenos del Caribe',
+        isActive: true,
+        createdAt: DateTime.now().subtract(const Duration(days: 20)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 20)),
+        canSellByUnit: true,
+        canSellByPackage: false,
+      ),
+      ProductModel(
+        id: _nextProductId++,
+        businessId: 1,
+        code: 'PROD004',
+        name: 'Batería 12V 55Ah',
+        description: 'Batería libre de mantenimiento 12V 55Ah',
+        category: 'Eléctrico',
+        purchasePrice: 3150.00,
+        salePrice: 4200.00,
+        currentStock: 12,
+        minStock: 3,
+        maxStock: 30,
+        unit: 'unidad',
+        location: 'Almacén Principal',
+        supplier: 'Baterías Premium',
+        isActive: true,
+        createdAt: DateTime.now().subtract(const Duration(days: 15)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 15)),
+        canSellByUnit: true,
+        canSellByPackage: false,
+      ),
+      ProductModel(
+        id: _nextProductId++,
+        businessId: 1,
+        code: 'PROD005',
+        name: 'Llanta 185/65R14',
+        description: 'Llanta radial 185/65R14 para vehículos compactos',
+        category: 'Llantas',
+        purchasePrice: 2240.00,
+        salePrice: 2800.00,
+        currentStock: 3,
+        minStock: 6,
+        maxStock: 24,
+        unit: 'unidad',
+        location: 'Almacén de Llantas',
+        supplier: 'Llantas del Este',
+        isActive: true,
+        createdAt: DateTime.now().subtract(const Duration(days: 10)),
+        updatedAt: DateTime.now().subtract(const Duration(days: 10)),
+        canSellByUnit: true,
+        canSellByPackage: true,
+        packageName: 'juego de 4',
+        conversionFactor: 4,
+        packagePrice: 10800.00,
+      ),
+    ]);
+
+    _isInitialized = true;
+  }
 
   /// Obtiene todos los productos de un negocio
   static Future<List<ProductModel>> getProducts(int businessId) async {
+    _initializeIfNeeded();
     await Future.delayed(const Duration(milliseconds: 300));
     return _products.where((p) => p.businessId == businessId).toList();
   }

@@ -13,6 +13,7 @@ analysis_options.yaml
 
 # Build artifacts except web
 build/
+!build/web/
 android/
 ios/
 linux/
