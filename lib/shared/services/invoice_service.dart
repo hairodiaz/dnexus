@@ -1,5 +1,4 @@
 import '../models/invoice_model.dart';
-import '../models/client_model.dart';
 import 'inventory_service.dart';
 import 'client_service.dart';
 import 'cash_register_service.dart';
@@ -10,12 +9,12 @@ class InvoiceService {
   static int _nextNumber = 1;
   static bool _initialized = false;
 
-  /// Inicializa el servicio con datos de muestra
+  /// Inicializa el servicio sin datos de muestra
   static void initialize() {
     if (_initialized) return;
     
-    _invoices = _generateSampleInvoices();
-    _nextNumber = _invoices.length + 1;
+    _invoices = []; // Sin datos de muestra - crear desde cero
+    _nextNumber = 1;
     _initialized = true;
   }
 

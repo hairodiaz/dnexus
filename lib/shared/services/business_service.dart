@@ -6,40 +6,9 @@ import '../models/business_model.dart';
 /// Servicio para manejar operaciones relacionadas con negocios
 class BusinessService {
 
-  /// Obtener datos simulados para web
+  /// Obtener datos simulados para web - SIN datos de muestra
   static List<BusinessModel> _getSimulatedBusinesses() {
-    return [
-      BusinessModel(
-        id: 1,
-        nombre: 'AutoRepuestos El Mecánico',
-        tipo: 'repuestos',
-        descripcion: 'Venta de repuestos automotrices y accesorios',
-        propietarioId: 1,
-        activo: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 30)),
-        updatedAt: DateTime.now(),
-      ),
-      BusinessModel(
-        id: 2,
-        nombre: 'ElectroHogar Premium',
-        tipo: 'electrodomesticos',
-        descripcion: 'Electrodomésticos y tecnología para el hogar',
-        propietarioId: 2,
-        activo: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 25)),
-        updatedAt: DateTime.now(),
-      ),
-      BusinessModel(
-        id: 3,
-        nombre: 'Préstamos Rápidos Plus',
-        tipo: 'prestamos',
-        descripcion: 'Servicios financieros y préstamos personales',
-        propietarioId: 3,
-        activo: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 20)),
-        updatedAt: DateTime.now(),
-      ),
-    ];
+    return []; // Sin negocios de muestra - crear desde cero como SuperAdmin
   }
   
   /// Obtener todos los negocios activos

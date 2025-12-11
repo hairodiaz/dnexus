@@ -11,48 +11,8 @@ class AuthService {
 
   /// Simula login de usuarios con diferentes roles
   static Future<UserModel?> login(String username, String password) async {
-    // Simulación de usuarios para prueba
+    // Solo usuario SuperAdmin - crear datos desde cero
     final testUsers = {
-      'admin': UserModel(
-        id: 1,
-        username: 'admin',
-        email: 'admin@dnexus.com',
-        fullName: 'Administrador Principal',
-        role: UserRole.admin.value,
-        isActive: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 30)),
-        lastLogin: DateTime.now(),
-      ),
-      'caja': UserModel(
-        id: 2,
-        username: 'caja',
-        email: 'caja@dnexus.com',
-        fullName: 'Cajero Principal',
-        role: UserRole.caja.value,
-        isActive: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 20)),
-        lastLogin: DateTime.now(),
-      ),
-      'facturador': UserModel(
-        id: 3,
-        username: 'facturador',
-        email: 'facturador@dnexus.com',
-        fullName: 'Facturador Principal',
-        role: UserRole.facturador.value,
-        isActive: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 15)),
-        lastLogin: DateTime.now(),
-      ),
-      'vendedor': UserModel(
-        id: 4,
-        username: 'vendedor',
-        email: 'vendedor@dnexus.com',
-        fullName: 'Vendedor Principal',
-        role: UserRole.vendedor.value,
-        isActive: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 10)),
-        lastLogin: DateTime.now(),
-      ),
       'superadmin': UserModel(
         id: 0,
         username: 'superadmin',
