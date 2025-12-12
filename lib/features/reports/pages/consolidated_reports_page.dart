@@ -345,7 +345,7 @@ class _ConsolidatedReportsPageState extends State<ConsolidatedReportsPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '${transacciones} transacciones',
+                    '$transacciones transacciones',
                     style: TextStyle(
                       color: _getBusinessColor(business.tipo),
                       fontSize: 12,

@@ -21,7 +21,7 @@ class ProductCard extends StatelessWidget {
   final BuildContext? context;
 
   const ProductCard({
-    Key? key,
+    super.key,
     required this.product,
     required this.user,
     required this.isMobile,
@@ -29,7 +29,7 @@ class ProductCard extends StatelessWidget {
     this.onEdit,
     this.onReceiveStock,
     this.context,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -355,12 +355,12 @@ class AddProductDialog extends StatefulWidget {
   final VoidCallback onProductAdded;
 
   const AddProductDialog({
-    Key? key,
+    super.key,
     required this.user,
     required this.businessId,
     required this.categories,
     required this.onProductAdded,
-  }) : super(key: key);
+  });
 
   @override
   State<AddProductDialog> createState() => _AddProductDialogState();
@@ -496,7 +496,7 @@ class _AddProductDialogState extends State<AddProductDialog> {
                         children: [
                           Expanded(
                             child: DropdownButtonFormField<String>(
-                              value: _selectedCategory.isEmpty ? null : _selectedCategory,
+                              initialValue: _selectedCategory.isEmpty ? null : _selectedCategory,
                               decoration: const InputDecoration(
                                 labelText: 'Categoría *',
                                 border: OutlineInputBorder(),
@@ -523,7 +523,7 @@ class _AddProductDialogState extends State<AddProductDialog> {
                           const SizedBox(width: 16),
                           Expanded(
                             child: DropdownButtonFormField<String>(
-                              value: _selectedUnit,
+                              initialValue: _selectedUnit,
                               decoration: const InputDecoration(
                                 labelText: 'Unidad *',
                                 border: OutlineInputBorder(),

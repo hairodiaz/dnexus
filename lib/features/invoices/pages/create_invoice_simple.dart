@@ -34,7 +34,7 @@ class _CreateInvoiceSimplePageState extends State<CreateInvoiceSimplePage> {
   List<ProductModel> _filteredProducts = [];
   
   ClientModel? _selectedClient;
-  List<InvoiceItemModel> _items = [];
+  final List<InvoiceItemModel> _items = [];
   bool _isLoading = false;
 
   @override

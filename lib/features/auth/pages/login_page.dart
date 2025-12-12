@@ -25,62 +25,17 @@ class _LoginPageState extends State<LoginPage> {
     _loadDevelopmentUsers();
   }
 
-  /// Cargar usuarios de desarrollo para presentación
+  /// Cargar solo SuperAdmin
   Future<void> _loadDevelopmentUsers() async {
     try {
-      // Usuarios de desarrollo para presentación al cliente
+      // Solo SuperAdmin para empezar desde cero
       _developmentUsers = [
         UserModel(
-          id: 1,
-          username: 'repuestos_user',
-          email: 'repuestos@dnexus.com',
-          fullName: 'Negocio de Repuestos',
-          role: 'admin',
-          isActive: true,
-          createdAt: DateTime.now(),
-        ),
-        UserModel(
-          id: 2,
-          username: 'electrodomesticos_user',
-          email: 'electrodomesticos@dnexus.com',
-          fullName: 'Tienda de Electrodomésticos',
-          role: 'admin',
-          isActive: true,
-          createdAt: DateTime.now(),
-        ),
-        UserModel(
-          id: 3,
-          username: 'prestamos_user',
-          email: 'prestamos@dnexus.com',
-          fullName: 'Casa de Préstamos',
-          role: 'admin',
-          isActive: true,
-          createdAt: DateTime.now(),
-        ),
-        UserModel(
-          id: 4,
-          username: 'super_admin',
-          email: 'admin@dnexus.com',
+          id: 0,
+          username: 'superadmin',
+          email: 'super@dnexus.com',
           fullName: 'Super Administrador',
           role: 'super_admin',
-          isActive: true,
-          createdAt: DateTime.now(),
-        ),
-        UserModel(
-          id: 5,
-          username: 'caja',
-          email: 'caja@dnexus.com',
-          fullName: 'Cajero Principal',
-          role: 'caja',
-          isActive: true,
-          createdAt: DateTime.now(),
-        ),
-        UserModel(
-          id: 6,
-          username: 'facturador',
-          email: 'facturador@dnexus.com',
-          fullName: 'Facturador Principal',
-          role: 'facturador',
           isActive: true,
           createdAt: DateTime.now(),
         ),
@@ -262,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                                   items: _developmentUsers.map((user) {
                                     return DropdownMenuItem<UserModel>(
                                       value: user,
-                                      child: Container(
+                                      child: SizedBox(
                                         width: double.infinity,
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,

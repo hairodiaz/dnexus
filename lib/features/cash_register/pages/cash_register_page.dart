@@ -30,7 +30,6 @@ class _CashRegisterPageState extends State<CashRegisterPage> {
   @override
   void initState() {
     super.initState();
-    CashRegisterService.initializeWithSampleData();
     _loadCurrentCashRegister();
   }
 

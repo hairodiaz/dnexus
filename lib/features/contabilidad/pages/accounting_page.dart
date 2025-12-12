@@ -114,8 +114,8 @@ class _AccountingPageState extends State<AccountingPage> with SingleTickerProvid
       floatingActionButton: _tabController.index == 2 
         ? FloatingActionButton(
             onPressed: _createJournalEntry,
-            child: const Icon(Icons.add),
             tooltip: 'Nuevo Asiento',
+            child: const Icon(Icons.add),
           )
         : null,
     );

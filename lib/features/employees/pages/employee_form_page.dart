@@ -233,7 +233,7 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                       
                       // Rol del sistema
                       DropdownButtonFormField<UserRole>(
-                        value: _selectedRole,
+                        initialValue: _selectedRole,
                         decoration: const InputDecoration(
                           labelText: 'Rol del Sistema *',
                           border: OutlineInputBorder(),
@@ -256,7 +256,7 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                       
                       // Negocio
                       DropdownButtonFormField<String>(
-                        value: _selectedBusinessId,
+                        initialValue: _selectedBusinessId,
                         decoration: const InputDecoration(
                           labelText: 'Negocio *',
                           border: OutlineInputBorder(),
@@ -329,7 +329,7 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                         onChanged: (value) {
                           setState(() => _isActive = value);
                         },
-                        activeColor: Colors.teal,
+                        activeThumbColor: Colors.teal,
                       ),
                     ],
                   ),
@@ -507,7 +507,7 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
     setState(() => _isLoading = true);
 
     try {
-      await EmployeeService.deleteEmployee(widget.employee!.id);
+      EmployeeService.deleteEmployee(widget.employee!.id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

@@ -411,7 +411,7 @@ class _EditTransactionPageState extends State<EditTransactionPage> {
   /// Dropdown de categoría
   Widget _buildCategoriaDropdown() {
     return DropdownButtonFormField<String>(
-      value: _categoriaSeleccionada,
+      initialValue: _categoriaSeleccionada,
       decoration: InputDecoration(
         labelText: 'Categoría *',
         prefixIcon: const Icon(Icons.category),
@@ -468,7 +468,7 @@ class _EditTransactionPageState extends State<EditTransactionPage> {
   /// Dropdown de método de pago
   Widget _buildMetodoPagoDropdown() {
     return DropdownButtonFormField<String>(
-      value: _metodoPagoSeleccionado,
+      initialValue: _metodoPagoSeleccionado,
       decoration: InputDecoration(
         labelText: 'Método de Pago *',
         prefixIcon: const Icon(Icons.payment),

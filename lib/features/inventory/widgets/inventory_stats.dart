@@ -9,10 +9,10 @@ class InventoryStatsDialog extends StatefulWidget {
   final UserModel user;
 
   const InventoryStatsDialog({
-    Key? key,
+    super.key,
     required this.businessId,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
   State<InventoryStatsDialog> createState() => _InventoryStatsDialogState();
@@ -360,10 +360,10 @@ class InventoryMovementsPage extends StatefulWidget {
   final UserModel user;
 
   const InventoryMovementsPage({
-    Key? key,
+    super.key,
     required this.businessId,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
   State<InventoryMovementsPage> createState() => _InventoryMovementsPageState();

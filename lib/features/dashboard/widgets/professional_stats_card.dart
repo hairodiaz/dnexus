@@ -14,7 +14,7 @@ class ProfessionalStatsCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const ProfessionalStatsCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
     this.subtitle,
@@ -26,7 +26,7 @@ class ProfessionalStatsCard extends StatelessWidget {
     this.percentage,
     this.chartData,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +53,7 @@ class ProfessionalStatsCard extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Header con icono y título
               Row(
@@ -146,12 +147,15 @@ class ProfessionalStatsCard extends StatelessWidget {
                 ),
               ],
               
-              // Mini gráfico si hay datos
+              // Mini gráfico si hay datos - con clipping para evitar overflow
               if (chartData != null && chartData!.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 40,
-                  child: _buildMiniChart(),
+                const SizedBox(height: 12),
+                ClipRect(
+                  child: SizedBox(
+                    height: 32,
+                    width: double.infinity,
+                    child: _buildMiniChart(),
+                  ),
                 ),
               ],
               
@@ -277,10 +281,10 @@ class StatsGrid extends StatelessWidget {
   final int? crossAxisCount;
 
   const StatsGrid({
-    Key? key,
+    super.key,
     required this.cards,
     this.crossAxisCount,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

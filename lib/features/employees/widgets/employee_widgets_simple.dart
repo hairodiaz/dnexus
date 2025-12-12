@@ -10,12 +10,12 @@ class EmployeeCard extends StatelessWidget {
   final VoidCallback? onToggleStatus;
 
   const EmployeeCard({
-    Key? key,
+    super.key,
     required this.employee,
     required this.currentUser,
     this.onEdit,
     this.onToggleStatus,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -153,9 +153,9 @@ class EmployeeStatsDialog extends StatelessWidget {
   final Map<String, dynamic> stats;
 
   const EmployeeStatsDialog({
-    Key? key,
+    super.key,
     required this.stats,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

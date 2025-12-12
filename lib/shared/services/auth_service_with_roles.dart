@@ -1,16 +1,45 @@
 import '../models/user_model.dart';
 import '../models/user_role.dart';
 import '../models/user_extensions.dart';
+import '../../core/utils/platform_detector.dart';
+import 'supabase_http_client.dart';
 
 /// Servicio de autenticación con sistema de roles integrado
 class AuthService {
   static UserModel? _currentUser;
+  static final SupabaseHttpClient _supabaseClient = SupabaseHttpClient();
   
   /// Usuario actualmente logueado
   static UserModel? get currentUser => _currentUser;
 
   /// Simula login de usuarios con diferentes roles
   static Future<UserModel?> login(String username, String password) async {
+    // En web, usar Supabase HTTP
+    if (PlatformDetector.isWeb) {
+      return await _loginSupabase(username, password);
+    }
+
+    // En nativo, usar datos locales
+    return await _loginLocal(username, password);
+  }
+
+  /// Login contra Supabase (web)
+  static Future<UserModel?> _loginSupabase(String username, String password) async {
+    try {
+      final user = await _supabaseClient.getUserByUsername(username);
+      
+      if (user != null && user.password == password) {
+        _currentUser = user;
+        return _currentUser;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Login local (nativo)
+  static Future<UserModel?> _loginLocal(String username, String password) async {
     // Solo usuario SuperAdmin - crear datos desde cero
     final testUsers = {
       'superadmin': UserModel(

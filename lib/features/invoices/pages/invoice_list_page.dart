@@ -38,7 +38,7 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
 
     try {
       InvoiceService.initialize();
-      _invoices = await InvoiceService.getAllInvoices();
+      _invoices = InvoiceService.getAllInvoices();
       _filteredInvoices = _invoices;
     } catch (e) {
       if (mounted) {
@@ -121,7 +121,7 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
 
   Widget _buildStatusFilter() {
     return DropdownButtonFormField<InvoiceStatus?>(
-      value: _selectedStatus,
+      initialValue: _selectedStatus,
       decoration: const InputDecoration(
         labelText: 'Filtrar por Estado',
         border: OutlineInputBorder(),

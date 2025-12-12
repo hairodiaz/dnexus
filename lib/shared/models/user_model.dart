@@ -13,6 +13,7 @@ class UserModel {
   final String? businessId;
   final int? roleIcon;
   final int? roleColor;
+  final String? password; // Para login desde Supabase
 
   const UserModel({
     required this.id,
@@ -26,6 +27,7 @@ class UserModel {
     this.businessId,
     this.roleIcon,
     this.roleColor,
+    this.password,
   });
 
   /// Obtiene el rol como enum
@@ -47,6 +49,24 @@ class UserModel {
       businessId: map['business_id'] as String?,
       roleIcon: map['role_icon'] as int?,
       roleColor: map['role_color'] as int?,
+      password: map['password'] as String?,
+    );
+  }
+
+  /// Constructor para crear un usuario desde JSON (Supabase)
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json['id'] as int,
+      username: json['username'] as String,
+      email: json['email'] as String,
+      fullName: json['nombre_completo'] as String?,
+      role: json['rol'] as String? ?? 'user',
+      isActive: json['activo'] as bool? ?? true,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      lastLogin: json['updated_at'] != null 
+        ? DateTime.parse(json['updated_at'] as String)
+        : null,
+      password: json['password'] as String?,
     );
   }
 
@@ -80,6 +100,7 @@ class UserModel {
     String? businessId,
     int? roleIcon,
     int? roleColor,
+    String? password,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -93,6 +114,7 @@ class UserModel {
       businessId: businessId ?? this.businessId,
       roleIcon: roleIcon ?? this.roleIcon,
       roleColor: roleColor ?? this.roleColor,
+      password: password ?? this.password,
     );
   }
 

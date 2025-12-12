@@ -53,9 +53,6 @@ class _InventoryPageState extends State<InventoryPage>
     setState(() => _isLoading = true);
     
     try {
-      // Inicializar datos de ejemplo si es necesario
-      InventoryService.initializeWithSampleData(widget.businessId);
-      
       final results = await Future.wait([
         InventoryService.getProducts(widget.businessId),
         InventoryService.getCategories(widget.businessId),
@@ -248,7 +245,7 @@ class _InventoryPageState extends State<InventoryPage>
               Expanded(
                 flex: 2,
                 child: DropdownButtonFormField<String>(
-                  value: _selectedCategory,
+                  initialValue: _selectedCategory,
                   decoration: InputDecoration(
                     labelText: 'Categoría',
                     border: OutlineInputBorder(

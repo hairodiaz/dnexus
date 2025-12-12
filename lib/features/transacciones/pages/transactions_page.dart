@@ -44,9 +44,6 @@ class _TransactionsPageState extends State<TransactionsPage> {
     setState(() => _isLoading = true);
     
     try {
-      // Inicializar datos de ejemplo si es necesario según tipo de negocio
-      await _transactionService.initializeSampleData(widget.business.id, widget.business.tipo);
-      
       // Cargar transacciones y estadísticas con filtros
       final transactions = await _transactionService.getFilteredTransactions(
         widget.business.id,

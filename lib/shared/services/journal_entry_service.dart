@@ -4,8 +4,8 @@ import 'chart_of_accounts_service.dart';
 /// Servicio para gestionar los Asientos Contables
 class JournalEntryService {
   // Lista estática para simular base de datos
-  static List<JournalEntryModel> _journalEntries = [];
-  static List<JournalEntryDetailModel> _journalEntryDetails = [];
+  static final List<JournalEntryModel> _journalEntries = [];
+  static final List<JournalEntryDetailModel> _journalEntryDetails = [];
   static int _nextJournalId = 1;
   static int _nextDetailId = 1;
 

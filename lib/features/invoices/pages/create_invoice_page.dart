@@ -45,7 +45,7 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
     try {
       _products = await InventoryService.getProducts(widget.businessId);
       _filteredProducts = _products;
-      _clients = await ClientService().getAllClients();
+      _clients = ClientService().getAllClients();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -270,7 +270,7 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
                               ),
                               const SizedBox(height: 8),
                               DropdownButtonFormField<ClientModel>(
-                                value: _selectedClient,
+                                initialValue: _selectedClient,
                                 decoration: const InputDecoration(
                                   hintText: 'Seleccionar cliente',
                                   border: OutlineInputBorder(),

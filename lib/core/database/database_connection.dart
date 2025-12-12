@@ -32,7 +32,7 @@ class DatabaseConnection {
       _connection = await Connection.open(
         endpoint,
         settings: const ConnectionSettings(
-          sslMode: SslMode.disable, // Para desarrollo local
+          sslMode: SslMode.require, // Supabase requiere SSL
         ),
       );
 

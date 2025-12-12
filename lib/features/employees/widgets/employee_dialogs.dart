@@ -11,10 +11,10 @@ class AddEmployeeDialog extends StatefulWidget {
   final Function(EmployeeModel) onEmployeeAdded;
 
   const AddEmployeeDialog({
-    Key? key,
+    super.key,
     required this.currentUser,
     required this.onEmployeeAdded,
-  }) : super(key: key);
+  });
 
   @override
   State<AddEmployeeDialog> createState() => _AddEmployeeDialogState();
@@ -159,7 +159,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
 
                 // Rol
                 DropdownButtonFormField<UserRole>(
-                  value: selectedRole,
+                  initialValue: selectedRole,
                   decoration: const InputDecoration(
                     labelText: 'Cargo/Rol *',
                     prefixIcon: Icon(Icons.work),
@@ -405,11 +405,11 @@ class EditEmployeeDialog extends StatefulWidget {
   final Function(EmployeeModel) onEmployeeUpdated;
 
   const EditEmployeeDialog({
-    Key? key,
+    super.key,
     required this.employee,
     required this.currentUser,
     required this.onEmployeeUpdated,
-  }) : super(key: key);
+  });
 
   @override
   State<EditEmployeeDialog> createState() => _EditEmployeeDialogState();

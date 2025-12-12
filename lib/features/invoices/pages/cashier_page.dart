@@ -36,7 +36,7 @@ class _CashierPageState extends State<CashierPage> {
     });
 
     try {
-      final allInvoices = await _invoiceService.getAllInvoices();
+      final allInvoices = _invoiceService.getAllInvoices();
       _pendingInvoices = allInvoices.where(
         (invoice) => invoice.status == InvoiceStatus.inCashier,
       ).toList();
@@ -214,7 +214,7 @@ class _CashierPageState extends State<CashierPage> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<PaymentMethod>(
-          value: _selectedPaymentMethod,
+          initialValue: _selectedPaymentMethod,
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
           ),

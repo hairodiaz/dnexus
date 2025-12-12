@@ -1,6 +1,8 @@
 import '../models/product_model.dart';
 import '../models/user_model.dart';
 import '../models/user_extensions.dart';
+import '../../core/utils/platform_detector.dart';
+import 'supabase_http_client.dart';
 
 /// Servicio para gestión de inventario con permisos por rol
 class InventoryService {
@@ -13,118 +15,7 @@ class InventoryService {
   /// Inicializa el servicio con productos de ejemplo
   static void _initializeIfNeeded() {
     if (_isInitialized) return;
-
-    _products.addAll([
-      ProductModel(
-        id: _nextProductId++,
-        businessId: 1,
-        code: 'PROD001',
-        name: 'Amortiguador Delantero Toyota Corolla',
-        description: 'Amortiguador delantero compatible con Toyota Corolla 2010-2018',
-        category: 'Suspensión',
-        purchasePrice: 2100.00,
-        salePrice: 3500.00,
-        currentStock: 15,
-        minStock: 5,
-        maxStock: 50,
-        unit: 'unidad',
-        location: 'Estante A-1',
-        supplier: 'Repuestos Premium',
-        isActive: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 30)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 30)),
-        canSellByUnit: true,
-        canSellByPackage: false,
-      ),
-      ProductModel(
-        id: _nextProductId++,
-        businessId: 1,
-        code: 'PROD002',
-        name: 'Filtro de Aceite Honda Civic',
-        description: 'Filtro de aceite original para Honda Civic 2016-2022',
-        category: 'Filtros',
-        purchasePrice: 280.00,
-        salePrice: 450.00,
-        currentStock: 32,
-        minStock: 10,
-        maxStock: 100,
-        unit: 'unidad',
-        location: 'Estante B-2',
-        supplier: 'Auto Partes Express',
-        isActive: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 25)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 25)),
-        canSellByUnit: true,
-        canSellByPackage: false,
-      ),
-      ProductModel(
-        id: _nextProductId++,
-        businessId: 1,
-        code: 'PROD003',
-        name: 'Pastillas de Freno Nissan Sentra',
-        description: 'Pastillas de freno cerámicas Nissan Sentra 2013-2019',
-        category: 'Frenos',
-        purchasePrice: 720.00,
-        salePrice: 1200.00,
-        currentStock: 8,
-        minStock: 5,
-        maxStock: 40,
-        unit: 'juego',
-        location: 'Estante C-1',
-        supplier: 'Frenos del Caribe',
-        isActive: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 20)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 20)),
-        canSellByUnit: true,
-        canSellByPackage: false,
-      ),
-      ProductModel(
-        id: _nextProductId++,
-        businessId: 1,
-        code: 'PROD004',
-        name: 'Batería 12V 55Ah',
-        description: 'Batería libre de mantenimiento 12V 55Ah',
-        category: 'Eléctrico',
-        purchasePrice: 3150.00,
-        salePrice: 4200.00,
-        currentStock: 12,
-        minStock: 3,
-        maxStock: 30,
-        unit: 'unidad',
-        location: 'Almacén Principal',
-        supplier: 'Baterías Premium',
-        isActive: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 15)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 15)),
-        canSellByUnit: true,
-        canSellByPackage: false,
-      ),
-      ProductModel(
-        id: _nextProductId++,
-        businessId: 1,
-        code: 'PROD005',
-        name: 'Llanta 185/65R14',
-        description: 'Llanta radial 185/65R14 para vehículos compactos',
-        category: 'Llantas',
-        purchasePrice: 2240.00,
-        salePrice: 2800.00,
-        currentStock: 3,
-        minStock: 6,
-        maxStock: 24,
-        unit: 'unidad',
-        location: 'Almacén de Llantas',
-        supplier: 'Llantas del Este',
-        isActive: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 10)),
-        updatedAt: DateTime.now().subtract(const Duration(days: 10)),
-        canSellByUnit: true,
-        canSellByPackage: true,
-        packageName: 'juego de 4',
-        conversionFactor: 4,
-        packagePrice: 10800.00,
-      ),
-    ]);
-
+    // Clean system mode - no sample products
     _isInitialized = true;
   }
 
@@ -133,6 +24,41 @@ class InventoryService {
     _initializeIfNeeded();
     await Future.delayed(const Duration(milliseconds: 300));
     return _products.where((p) => p.businessId == businessId).toList();
+  }
+
+  /// Obtiene todos los productos (asincrónico, usa Supabase en web)
+  static Future<List<ProductModel>> getProductsAsync(String negocioId) async {
+    // En web, usar Supabase
+    if (PlatformDetector.isWeb) {
+      try {
+        final SupabaseHttpClient supabaseClient = SupabaseHttpClient();
+        final data = await supabaseClient.getProductsByBusiness(negocioId);
+        return data.map((json) {
+          return ProductModel(
+            id: int.tryParse(json['id'].toString()) ?? 0,
+            code: json['codigo'] ?? '',
+            name: json['nombre'] ?? '',
+            description: json['descripcion'] ?? '',
+            category: '',
+            purchasePrice: double.tryParse(json['precio'].toString()) ?? 0,
+            salePrice: double.tryParse(json['precio'].toString()) ?? 0,
+            currentStock: int.tryParse(json['stock'].toString()) ?? 0,
+            minStock: 5,
+            maxStock: 100,
+            unit: 'unidad',
+            isActive: json['activo'] ?? true,
+            businessId: int.tryParse(negocioId) ?? 0,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+        }).toList();
+      } catch (e) {
+        return [];
+      }
+    }
+
+    // En nativo, usar lista en memoria
+    return getProducts(int.tryParse(negocioId) ?? 0);
   }
 
   /// Busca productos por nombre, código o categoría
@@ -149,6 +75,46 @@ class InventoryService {
        product.code.toLowerCase().contains(lowercaseQuery) ||
        product.category.toLowerCase().contains(lowercaseQuery))
     ).toList();
+  }
+
+  /// Busca productos de forma asincrónica (usa Supabase en web)
+  static Future<List<ProductModel>> searchProductsAsync(
+    String negocioId,
+    String query,
+  ) async {
+    // En web, usar Supabase
+    if (PlatformDetector.isWeb) {
+      try {
+        final SupabaseHttpClient supabaseClient = SupabaseHttpClient();
+        final data = await supabaseClient.searchProducts(query);
+        
+        // Filtrar por negocio si es necesario
+        return data.where((json) => json['negocio_id'].toString() == negocioId).map((json) {
+          return ProductModel(
+            id: int.tryParse(json['id'].toString()) ?? 0,
+            code: json['codigo'] ?? '',
+            name: json['nombre'] ?? '',
+            description: json['descripcion'] ?? '',
+            category: '',
+            purchasePrice: double.tryParse(json['precio'].toString()) ?? 0,
+            salePrice: double.tryParse(json['precio'].toString()) ?? 0,
+            currentStock: int.tryParse(json['stock'].toString()) ?? 0,
+            minStock: 5,
+            maxStock: 100,
+            unit: 'unidad',
+            isActive: json['activo'] ?? true,
+            businessId: int.tryParse(negocioId) ?? 0,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+        }).toList();
+      } catch (e) {
+        return [];
+      }
+    }
+
+    // En nativo, usar búsqueda local
+    return searchProducts(int.tryParse(negocioId) ?? 0, query);
   }
 
   /// Obtiene productos por categoría
@@ -248,6 +214,37 @@ class InventoryService {
     }
 
     return newProduct;
+  }
+
+  /// Registra un nuevo producto de forma asincrónica (usa Supabase en web)
+  static Future<bool> createProductAsync(
+    String nombre,
+    String descripcion,
+    String codigo,
+    double precio,
+    int stock,
+    String negocioId,
+  ) async {
+    // En web, usar Supabase
+    if (PlatformDetector.isWeb) {
+      try {
+        final SupabaseHttpClient supabaseClient = SupabaseHttpClient();
+        return await supabaseClient.createProduct({
+          'nombre': nombre,
+          'descripcion': descripcion,
+          'codigo': codigo,
+          'precio': precio,
+          'stock': stock,
+          'negocio_id': negocioId,
+          'activo': true,
+        });
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // En nativo, requiere permisos y crear ProductModel local
+    return false; // Versión nativa requiere UserModel y manejo más completo
   }
 
   /// Actualiza un producto existente
@@ -488,150 +485,8 @@ class InventoryService {
 
   /// Inicializa con productos de ejemplo
   static void initializeWithSampleData(int businessId) {
-    if (_products.isNotEmpty) return;
-
-    final now = DateTime.now();
-    final sampleProducts = [
-      // PRODUCTO CON UNIDADES MÚLTIPLES: Aceite (caja de 12 unidades)
-      ProductModel(
-        id: _nextProductId++,
-        code: 'ACE001',
-        name: 'Aceite Motor 20W-50',
-        description: 'Aceite lubricante premium para motores, viene en caja de 12 unidades',
-        category: 'Lubricantes',
-        purchasePrice: 8500, // precio por unidad
-        salePrice: 12000, // precio por unidad individual
-        currentStock: 39, // 39 unidades = 3 cajas + 3 sueltas
-        minStock: 12,
-        maxStock: 144, // 12 cajas
-        unit: 'unidades',
-        isActive: true,
-        businessId: businessId,
-        createdAt: now,
-        updatedAt: now,
-        supplier: 'Lubricantes Premium SA',
-        location: 'Estante A1',
-        // Campos para unidades múltiples
-        conversionFactor: 12, // 12 unidades por caja
-        packageName: 'caja',
-        packagePrice: 130000, // precio por caja completa (descuento vs individual)
-        canSellByUnit: true,
-        canSellByPackage: true,
-      ),
-      // PRODUCTO CON UNIDADES MÚLTIPLES: Pastillas (blister de 20)
-      ProductModel(
-        id: _nextProductId++,
-        code: 'MED001',
-        name: 'Acetaminofén 500mg',
-        description: 'Analgésico y antipirético en presentación de 20 pastillas por caja',
-        category: 'Medicinas',
-        purchasePrice: 180, // precio por pastilla
-        salePrice: 300, // precio por pastilla individual
-        currentStock: 65, // 65 pastillas = 3 cajas + 5 sueltas
-        minStock: 20,
-        maxStock: 200,
-        unit: 'pastillas',
-        isActive: true,
-        businessId: businessId,
-        createdAt: now,
-        updatedAt: now,
-        supplier: 'Laboratorios Médicos',
-        location: 'Vitrina Medicinas',
-        // Campos para unidades múltiples
-        conversionFactor: 20, // 20 pastillas por caja
-        packageName: 'caja',
-        packagePrice: 5500, // precio por caja (descuento vs individual)
-        canSellByUnit: true,
-        canSellByPackage: true,
-      ),
-      // PRODUCTO TRADICIONAL: Sin unidades múltiples
-      ProductModel(
-        id: _nextProductId++,
-        code: 'REP002',
-        name: 'Filtro de Aire Toyota',
-        description: 'Filtro de aire para vehículos Toyota Corolla',
-        category: 'Filtros',
-        purchasePrice: 25000,
-        salePrice: 35000,
-        currentStock: 5, // Stock bajo
-        minStock: 8,
-        maxStock: 50,
-        unit: 'unidades',
-        isActive: true,
-        businessId: businessId,
-        createdAt: now,
-        updatedAt: now,
-        supplier: 'Filtros Técnicos',
-        location: 'Estante B2',
-      ),
-      // PRODUCTO CON UNIDADES MÚLTIPLES: Bebidas (sixpack de 6)
-      ProductModel(
-        id: _nextProductId++,
-        code: 'BEB001',
-        name: 'Gaseosa Cola 350ml',
-        description: 'Gaseosa en lata de 350ml, se vende por sixpack o unidad',
-        category: 'Bebidas',
-        purchasePrice: 1800, // precio por lata
-        salePrice: 2500, // precio por lata individual
-        currentStock: 32, // 32 latas = 5 sixpacks + 2 sueltas
-        minStock: 12,
-        maxStock: 144, // 24 sixpacks
-        unit: 'latas',
-        isActive: true,
-        businessId: businessId,
-        createdAt: now,
-        updatedAt: now,
-        supplier: 'Distribuidora Bebidas',
-        location: 'Nevera Principal',
-        // Campos para unidades múltiples
-        conversionFactor: 6, // 6 latas por sixpack
-        packageName: 'sixpack',
-        packagePrice: 13500, // precio por sixpack (descuento vs individual)
-        canSellByUnit: true,
-        canSellByPackage: true,
-      ),
-      // PRODUCTO TRADICIONAL: Sin unidades múltiples
-      ProductModel(
-        id: _nextProductId++,
-        code: 'ELE001',
-        name: 'Refrigerador Samsung 300L',
-        description: 'Refrigerador de 300 litros con tecnología inverter',
-        category: 'Electrodomésticos',
-        purchasePrice: 1200000,
-        salePrice: 1500000,
-        currentStock: 3,
-        minStock: 2,
-        maxStock: 10,
-        unit: 'unidades',
-        isActive: true,
-        businessId: businessId,
-        createdAt: now,
-        updatedAt: now,
-        supplier: 'Samsung Colombia',
-        location: 'Bodega Principal',
-      ),
-      ProductModel(
-        id: _nextProductId++,
-        code: 'ELE002',
-        name: 'Televisor LG 55"',
-        description: 'Smart TV LG de 55 pulgadas 4K UHD',
-        category: 'Electrodomésticos',
-        purchasePrice: 2000000,
-        salePrice: 2400000,
-        currentStock: 0, // Agotado
-        minStock: 1,
-        maxStock: 5,
-        unit: 'unidades',
-        isActive: true,
-        businessId: businessId,
-        createdAt: now,
-        updatedAt: now,
-        supplier: 'LG Electronics',
-        location: 'Showroom',
-      ),
-    ];
-
-    _products.addAll(sampleProducts);
+    // Sample data initialization disabled - clean system mode
+    return;
   }
 
   // Métodos auxiliares para verificar permisos

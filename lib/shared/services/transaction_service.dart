@@ -2,6 +2,8 @@ import '../models/transaction_model.dart';
 import '../models/transaction_audit_model.dart';
 import '../enums/transaction_filter_enum.dart';
 import 'transaction_audit_service.dart';
+import '../../core/utils/platform_detector.dart';
+import 'supabase_http_client.dart';
 
 /// Servicio para manejar transacciones
 class TransactionService {
@@ -21,6 +23,39 @@ class TransactionService {
         .where((transaction) => transaction.negocioId == businessId)
         .toList()
       ..sort((a, b) => b.fecha.compareTo(a.fecha)); // Más recientes primero
+  }
+
+  /// Obtener transacciones por negocio (asincrónico, usa Supabase en web)
+  Future<List<TransactionModel>> getTransactionsByBusinessAsync(String negocioId) async {
+    // En web, usar Supabase
+    if (PlatformDetector.isWeb) {
+      try {
+        final SupabaseHttpClient supabaseClient = SupabaseHttpClient();
+        final data = await supabaseClient.getTransactionsByBusiness(negocioId);
+        return data.map((json) {
+          return TransactionModel(
+            id: int.tryParse(json['id'].toString()) ?? 0,
+            tipo: json['tipo'] ?? 'ingreso',
+            monto: double.tryParse(json['monto'].toString()) ?? 0,
+            concepto: json['concepto'] ?? '',
+            categoria: json['categoria'] ?? '',
+            metodoPago: json['metodo_pago'] ?? 'efectivo',
+            cliente: json['cliente_id'] != null ? json['cliente_id'].toString() : null,
+            negocioId: int.tryParse(negocioId) ?? 0,
+            fecha: DateTime.tryParse(json['fecha'] ?? '') ?? DateTime.now(),
+            observaciones: json['observaciones'] ?? '',
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+        }).toList()
+          ..sort((a, b) => b.fecha.compareTo(a.fecha)); // Más recientes primero
+      } catch (e) {
+        return [];
+      }
+    }
+
+    // En nativo, usar lista en memoria
+    return getTransactionsByBusiness(int.tryParse(negocioId) ?? 0);
   }
 
   /// Obtener transacciones filtradas por período, tipo y método de pago
@@ -105,6 +140,58 @@ class TransactionService {
     await _auditService.logCreated(transaction, 1, userFullName: 'Usuario Sistema');
     
     return transaction;
+  }
+
+  /// Crear transacción de forma asincrónica (usa Supabase en web)
+  Future<bool> createTransactionAsync({
+    required String tipo,
+    required double monto,
+    required String concepto,
+    required String categoria,
+    required String metodoPago,
+    String? cliente,
+    required DateTime fecha,
+    required String negocioId,
+    String? observaciones,
+  }) async {
+    // En web, usar Supabase
+    if (PlatformDetector.isWeb) {
+      try {
+        final SupabaseHttpClient supabaseClient = SupabaseHttpClient();
+        return await supabaseClient.createTransaction({
+          'tipo': tipo,
+          'monto': monto,
+          'concepto': concepto,
+          'categoria': categoria,
+          'metodo_pago': metodoPago,
+          'cliente_id': cliente,
+          'fecha': fecha.toIso8601String(),
+          'negocio_id': negocioId,
+          'observaciones': observaciones,
+          'activo': true,
+        });
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // En nativo, usar método local
+    try {
+      await createTransaction(
+        tipo: tipo,
+        monto: monto,
+        concepto: concepto,
+        categoria: categoria,
+        metodoPago: metodoPago,
+        cliente: cliente,
+        fecha: fecha,
+        negocioId: int.tryParse(negocioId) ?? 0,
+        observaciones: observaciones,
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   /// Actualizar transacción existente con auditoría
@@ -289,9 +376,8 @@ class TransactionService {
 
   /// Inicializar datos de ejemplo para desarrollo según tipo de negocio
   Future<void> initializeSampleData(int businessId, String tipoNegocio) async {
-    if (_transactions.any((t) => t.negocioId == businessId)) {
-      return; // Ya hay datos para este negocio
-    }
+    // Sample data disabled - clean system mode
+    return;
 
     final now = DateTime.now();
     

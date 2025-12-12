@@ -424,7 +424,7 @@ class _CashierSimplePageState extends State<CashierSimplePage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Factura ${invoice.formattedNumber}'),
-        content: Container(
+        content: SizedBox(
           width: 400,
           child: Column(
             mainAxisSize: MainAxisSize.min,

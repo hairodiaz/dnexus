@@ -3,7 +3,7 @@ import '../models/chart_of_accounts_model.dart';
 /// Servicio para gestionar el Plan de Cuentas
 class ChartOfAccountsService {
   // Lista estática para simular base de datos
-  static List<ChartOfAccountsModel> _accounts = [];
+  static final List<ChartOfAccountsModel> _accounts = [];
   static int _nextId = 1;
 
   /// Obtiene todas las cuentas de un negocio

@@ -263,29 +263,7 @@ class CashRegisterService {
 
   /// Inicializa el servicio con datos de ejemplo
   static void initializeWithSampleData() {
-    if (_cashRegisters.isEmpty) {
-      // Caja cerrada de ejemplo (ayer)
-      final yesterday = DateTime.now().subtract(const Duration(days: 1));
-      final closedRegister = CashRegisterModel(
-        id: _nextId++,
-        businessId: 1,
-        userId: 5, // Usuario caja
-        userName: 'María Fernández',
-        openedAt: yesterday.copyWith(hour: 8, minute: 0),
-        closedAt: yesterday.copyWith(hour: 18, minute: 30),
-        initialAmount: 5000.0,
-        finalAmount: 27500.0,
-        expectedAmount: 27000.0,
-        difference: 500.0, // Sobrante
-        status: CashRegisterStatus.closed,
-        notes: 'Jornada normal, pequeño sobrante por redondeos',
-        totalSales: 22000.0,
-        transactionCount: 15,
-        createdAt: yesterday.copyWith(hour: 8, minute: 0),
-        updatedAt: yesterday.copyWith(hour: 18, minute: 30),
-      );
-
-      _cashRegisters.add(closedRegister);
-    }
+    // Sample data initialization disabled - clean system mode
+    return;
   }
 }

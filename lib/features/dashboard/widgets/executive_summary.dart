@@ -8,13 +8,13 @@ class ExecutiveSummary extends StatelessWidget {
   final bool isPositiveGrowth;
 
   const ExecutiveSummary({
-    Key? key,
+    super.key,
     required this.totalSales,
     required this.monthlyGrowth,
     required this.totalTransactions,
     required this.activeClients,
     this.isPositiveGrowth = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -216,7 +216,7 @@ class ExecutiveSummary extends StatelessWidget {
 
 // Widget para mostrar alertas y notificaciones importantes
 class BusinessAlerts extends StatelessWidget {
-  const BusinessAlerts({Key? key}) : super(key: key);
+  const BusinessAlerts({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -266,89 +266,20 @@ class BusinessAlerts extends StatelessWidget {
             
             const SizedBox(height: 20),
             
-            // Lista de alertas
-            _buildAlert(
-              'Stock Bajo',
-              'Llanta 185/65R14 tiene solo 3 unidades',
-              Icons.inventory_2,
-              Colors.red,
-            ),
-            const SizedBox(height: 12),
-            _buildAlert(
-              'Caja Abierta',
-              'Tienes una caja registradora activa',
-              Icons.point_of_sale,
-              Colors.blue,
-            ),
-            const SizedBox(height: 12),
-            _buildAlert(
-              'Recordatorio',
-              '5 clientes con pagos pendientes',
-              Icons.schedule,
-              Colors.orange,
+            // Lista de alertas - Currently empty
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Text(
+                'No hay alertas activas',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildAlert(String title, String message, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 18,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  message,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            Icons.chevron_right,
-            color: Colors.grey[400],
-            size: 18,
-          ),
-        ],
       ),
     );
   }

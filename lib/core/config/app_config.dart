@@ -13,10 +13,10 @@ class AppConfig {
     ),
   );
 
-  // Configuración de base de datos
-  static const String dbHost = 'localhost';
+  // Configuración de base de datos - Supabase
+  static const String dbHost = 'xmoqjehicmqkseejreng.supabase.co';
   static const int dbPort = 5432;
-  static const String dbName = 'dnexus_db';
+  static const String dbName = 'postgres';
   static const String dbUsername = 'postgres';
   static const String dbPassword = 'Hernandez14'; // Cambiar en producción
   

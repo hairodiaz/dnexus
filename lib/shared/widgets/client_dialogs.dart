@@ -255,7 +255,7 @@ class _AddClientDialogState extends State<AddClientDialog> {
 
                       // Negocio inicial
                       DropdownButtonFormField<String>(
-                        value: _selectedBusiness,
+                        initialValue: _selectedBusiness,
                         decoration: const InputDecoration(
                           labelText: 'Negocio inicial (opcional)',
                           prefixIcon: Icon(Icons.business),

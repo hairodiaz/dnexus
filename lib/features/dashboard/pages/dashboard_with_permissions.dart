@@ -7,7 +7,6 @@ import '../../../shared/models/business_model.dart';
 import '../../../shared/services/business_service.dart';
 import '../../../shared/services/auth_service_with_roles.dart';
 import '../../../shared/widgets/permission_widgets.dart';
-import '../../../core/utils/currency_formatter.dart';
 import '../../transacciones/pages/transactions_page.dart';
 import '../../cash_register/pages/cash_register_page.dart';
 import '../../invoices/pages/invoice_list_page.dart';
@@ -738,13 +737,13 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Resumen ejecutivo
+        // Resumen ejecutivo - Empty state since no data
         const ExecutiveSummary(
-          totalSales: 'RD\$ 2,450,000',
-          monthlyGrowth: '+15.2%',
-          totalTransactions: 234,
-          activeClients: 128,
-          isPositiveGrowth: true,
+          totalSales: 'RD\$ 0',
+          monthlyGrowth: '0%',
+          totalTransactions: 0,
+          activeClients: 0,
+          isPositiveGrowth: false,
         ),
         
         const SizedBox(height: 32),
@@ -811,63 +810,60 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
   }
 
   Widget _buildGeneralStats() {
-    final salesData = [120000.0, 145000.0, 138000.0, 165000.0, 180000.0, 205000.0, 250000.0];
-    final transactionData = [28.0, 32.0, 35.0, 31.0, 42.0, 38.0, 45.0];
-    final clientData = [98.0, 105.0, 112.0, 108.0, 118.0, 125.0, 128.0];
-    final productData = [78.0, 82.0, 85.0, 83.0, 87.0, 89.0, 89.0];
+    final emptyChartData = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
     
     return StatsGrid(
       cards: [
         ProfessionalStatsCard(
           title: 'Ventas Hoy',
-          value: CurrencyFormatter.formatForDashboard(250000),
+          value: 'RD\$ 0',
           subtitle: 'Meta: RD\$ 300K',
           icon: Icons.trending_up,
           primaryColor: const Color(0xFF10b981),
           secondaryColor: const Color(0xFF34d399),
-          trend: '+12.5%',
-          isPositiveTrend: true,
-          percentage: 18.2,
-          chartData: salesData,
+          trend: '0%',
+          isPositiveTrend: false,
+          percentage: 0.0,
+          chartData: emptyChartData,
           onTap: () => _navigateToSalesReport(),
         ),
         ProfessionalStatsCard(
           title: 'Transacciones',
-          value: '45',
-          subtitle: 'Promedio: 38/día',
+          value: '0',
+          subtitle: 'Promedio: 0/día',
           icon: Icons.swap_horiz,
           primaryColor: const Color(0xFF3b82f6),
           secondaryColor: const Color(0xFF60a5fa),
-          trend: '+8.2%',
-          isPositiveTrend: true,
-          percentage: 8.2,
-          chartData: transactionData,
+          trend: '0%',
+          isPositiveTrend: false,
+          percentage: 0.0,
+          chartData: emptyChartData,
           onTap: () => _navigateToTransactions(),
         ),
         ProfessionalStatsCard(
           title: 'Clientes Activos',
-          value: '128',
-          subtitle: 'Nuevos: 12 este mes',
+          value: '0',
+          subtitle: 'Nuevos: 0 este mes',
           icon: Icons.people,
           primaryColor: const Color(0xFF8b5cf6),
           secondaryColor: const Color(0xFFa78bfa),
-          trend: '+5.7%',
-          isPositiveTrend: true,
-          percentage: 5.7,
-          chartData: clientData,
+          trend: '0%',
+          isPositiveTrend: false,
+          percentage: 0.0,
+          chartData: emptyChartData,
           onTap: () => _navigateToClients(),
         ),
         ProfessionalStatsCard(
           title: 'Productos',
-          value: '89',
-          subtitle: 'Stock total: 1,245 unidades',
+          value: '0',
+          subtitle: 'Stock total: 0 unidades',
           icon: Icons.inventory,
           primaryColor: const Color(0xFFf59e0b),
           secondaryColor: const Color(0xFFfbbf24),
           trend: '0%',
-          isPositiveTrend: true,
+          isPositiveTrend: false,
           percentage: 0.0,
-          chartData: productData,
+          chartData: emptyChartData,
           onTap: () => _navigateToInventory(),
         ),
       ],
@@ -875,63 +871,60 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
   }
 
   Widget _buildInvoicingStats() {
-    final invoicesData = [8.0, 10.0, 9.0, 11.0, 14.0, 13.0, 12.0];
-    final salesData = [45000.0, 52000.0, 48000.0, 61000.0, 72000.0, 78000.0, 85000.0];
-    final clientsData = [15.0, 18.0, 16.0, 22.0, 26.0, 23.0, 24.0];
-    final productsData = [89.0, 102.0, 95.0, 128.0, 145.0, 138.0, 156.0];
+    final emptyChartData = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
     
     return StatsGrid(
       cards: [
         ProfessionalStatsCard(
           title: 'Facturas Hoy',
-          value: '12',
-          subtitle: 'Promedio: 9/día',
+          value: '0',
+          subtitle: 'Promedio: 0/día',
           icon: Icons.receipt_long,
           primaryColor: const Color(0xFF3b82f6),
           secondaryColor: const Color(0xFF60a5fa),
-          trend: '+33%',
-          isPositiveTrend: true,
-          percentage: 33.3,
-          chartData: invoicesData,
+          trend: '0%',
+          isPositiveTrend: false,
+          percentage: 0.0,
+          chartData: emptyChartData,
           onTap: () => _navigateToInvoices(),
         ),
         ProfessionalStatsCard(
           title: 'Total Facturado',
-          value: CurrencyFormatter.formatForDashboard(85000),
+          value: 'RD\$ 0',
           subtitle: 'Meta diaria: RD\$ 100K',
           icon: Icons.monetization_on,
           primaryColor: const Color(0xFF10b981),
           secondaryColor: const Color(0xFF34d399),
-          trend: '+18.5%',
-          isPositiveTrend: true,
-          percentage: 18.5,
-          chartData: salesData,
+          trend: '0%',
+          isPositiveTrend: false,
+          percentage: 0.0,
+          chartData: emptyChartData,
           onTap: () => _navigateToSalesReport(),
         ),
         ProfessionalStatsCard(
           title: 'Clientes Atendidos',
-          value: '24',
+          value: '0',
           subtitle: 'Únicos hoy',
           icon: Icons.people_outline,
           primaryColor: const Color(0xFF8b5cf6),
           secondaryColor: const Color(0xFFa78bfa),
-          trend: '+4.3%',
-          isPositiveTrend: true,
-          percentage: 4.3,
-          chartData: clientsData,
+          trend: '0%',
+          isPositiveTrend: false,
+          percentage: 0.0,
+          chartData: emptyChartData,
           onTap: () => _navigateToClients(),
         ),
         ProfessionalStatsCard(
           title: 'Productos Vendidos',
-          value: '156',
+          value: '0',
           subtitle: 'Unidades hoy',
           icon: Icons.inventory_2,
           primaryColor: const Color(0xFFf59e0b),
           secondaryColor: const Color(0xFFfbbf24),
-          trend: '+12.9%',
-          isPositiveTrend: true,
-          percentage: 12.9,
-          chartData: productsData,
+          trend: '0%',
+          isPositiveTrend: false,
+          percentage: 0.0,
+          chartData: emptyChartData,
           onTap: () => _navigateToInventory(),
         ),
       ],
@@ -939,8 +932,7 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
   }
 
   Widget _buildBasicStats() {
-    final clientData = [98.0, 105.0, 112.0, 108.0, 118.0, 125.0, 128.0];
-    final productData = [78.0, 82.0, 85.0, 83.0, 87.0, 89.0, 89.0];
+    final emptyChartData = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
     
     List<ProfessionalStatsCard> cards = [];
     
@@ -948,15 +940,15 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
       cards.add(
         ProfessionalStatsCard(
           title: 'Clientes Registrados',
-          value: '128',
-          subtitle: 'Activos este mes: 96',
+          value: '0',
+          subtitle: 'Activos este mes: 0',
           icon: Icons.people,
           primaryColor: const Color(0xFF8b5cf6),
           secondaryColor: const Color(0xFFa78bfa),
-          trend: '+5.7%',
-          isPositiveTrend: true,
-          percentage: 5.7,
-          chartData: clientData,
+          trend: '0%',
+          isPositiveTrend: false,
+          percentage: 0.0,
+          chartData: emptyChartData,
           onTap: () => _navigateToClients(),
         ),
       );
@@ -966,15 +958,15 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
       cards.add(
         ProfessionalStatsCard(
           title: 'Productos Disponibles',
-          value: '89',
-          subtitle: 'Stock total: 1,245 unidades',
+          value: '0',
+          subtitle: 'Stock total: 0 unidades',
           icon: Icons.inventory,
           primaryColor: const Color(0xFFf59e0b),
           secondaryColor: const Color(0xFFfbbf24),
           trend: '0%',
-          isPositiveTrend: true,
+          isPositiveTrend: false,
           percentage: 0.0,
-          chartData: productData,
+          chartData: emptyChartData,
           onTap: () => _navigateToInventory(),
         ),
       );
@@ -1313,7 +1305,7 @@ class UserRoleCard extends StatelessWidget {
   final UserModel user;
   final bool? showPermissions;
 
-  const UserRoleCard({Key? key, required this.user, this.showPermissions}) : super(key: key);
+  const UserRoleCard({super.key, required this.user, this.showPermissions});
 
   @override
   Widget build(BuildContext context) {

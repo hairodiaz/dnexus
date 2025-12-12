@@ -1,4 +1,6 @@
 import '../models/client_model.dart';
+import '../../core/utils/platform_detector.dart';
+import 'supabase_http_client.dart';
 
 /// Servicio para gestionar clientes unificados
 /// Maneja el CRUD y búsquedas de clientes compartidos entre negocios
@@ -7,77 +9,43 @@ class ClientService {
   factory ClientService() => _instance;
   ClientService._internal();
 
-  // Base de datos simulada de clientes
+  // Base de datos simulada de clientes (para nativo)
   final List<ClientModel> _clients = [];
   int _nextId = 1;
   bool _isInitialized = false;
+  
+  // Cliente HTTP Supabase
+  final SupabaseHttpClient _supabaseClient = SupabaseHttpClient();
 
   /// Inicializa el servicio con datos de ejemplo
   void _initializeIfNeeded() {
     if (_isInitialized) return;
 
     _clients.addAll([
-      ClientModel(
-        id: 'CLI${_nextId++}',
-        cedula: '001-1234567-8',
-        nombreCompleto: 'Juan Pérez Martínez',
-        telefono: '809-555-0001',
-        email: 'juan.perez@email.com',
-        direccion: 'Calle Principal #123, Santo Domingo',
-        activo: true,
-        fechaRegistro: DateTime.now().subtract(const Duration(days: 30)),
-        negociosAsociados: ['repuestos', 'electrodomesticos'],
-      ),
-      ClientModel(
-        id: 'CLI${_nextId++}',
-        cedula: '001-2345678-9',
-        nombreCompleto: 'María García López',
-        telefono: '809-555-0002',
-        email: 'maria.garcia@email.com',
-        direccion: 'Av. Independencia #456, Santo Domingo',
-        activo: true,
-        fechaRegistro: DateTime.now().subtract(const Duration(days: 25)),
-        negociosAsociados: ['electrodomesticos'],
-      ),
-      ClientModel(
-        id: 'CLI${_nextId++}',
-        cedula: '001-3456789-0',
-        nombreCompleto: 'Carlos Martínez Rodríguez',
-        telefono: '809-555-0003',
-        email: 'carlos.martinez@email.com',
-        direccion: 'Calle Duarte #789, Santiago',
-        activo: true,
-        fechaRegistro: DateTime.now().subtract(const Duration(days: 20)),
-        negociosAsociados: ['repuestos'],
-      ),
-      ClientModel(
-        id: 'CLI${_nextId++}',
-        cedula: '001-4567890-1',
-        nombreCompleto: 'Ana López Fernández',
-        telefono: '809-555-0004',
-        email: 'ana.lopez@email.com',
-        direccion: 'Av. 27 de Febrero #321, Santo Domingo',
-        activo: true,
-        fechaRegistro: DateTime.now().subtract(const Duration(days: 15)),
-        negociosAsociados: ['prestamos'],
-      ),
-      ClientModel(
-        id: 'CLI${_nextId++}',
-        cedula: '001-5678901-2',
-        nombreCompleto: 'Pedro Rodríguez Santos',
-        telefono: '809-555-0005',
-        email: 'pedro.rodriguez@email.com',
-        direccion: 'Calle Mella #654, La Romana',
-        activo: true,
-        fechaRegistro: DateTime.now().subtract(const Duration(days: 10)),
-        negociosAsociados: ['repuestos', 'electrodomesticos', 'prestamos'],
-      ),
+      // Sample clients disabled - clean system mode
     ]);
 
     _isInitialized = true;
   }
 
   /// Obtiene todos los clientes activos
+  Future<List<ClientModel>> getAllClientsAsync() async {
+    // En web, obtener de Supabase
+    if (PlatformDetector.isWeb) {
+      try {
+        final data = await _supabaseClient.getClients();
+        return data.map((json) => ClientModel.fromJson(json)).toList();
+      } catch (e) {
+        return [];
+      }
+    }
+
+    // En nativo, usar lista en memoria
+    _initializeIfNeeded();
+    return _clients.where((client) => client.activo).toList();
+  }
+
+  /// Obtiene todos los clientes (versión sincrónica para compatibilidad)
   List<ClientModel> getAllClients() {
     _initializeIfNeeded();
     return _clients.where((client) => client.activo).toList();
@@ -132,6 +100,24 @@ class ClientService {
     ).toList();
   }
 
+  /// Búsqueda asincrónica (usa Supabase en web)
+  Future<List<ClientModel>> searchAsync(String query) async {
+    if (query.isEmpty) return getAllClientsAsync();
+
+    // En web, usar Supabase
+    if (PlatformDetector.isWeb) {
+      try {
+        final data = await _supabaseClient.searchClients(query);
+        return data.map((json) => ClientModel.fromJson(json)).toList();
+      } catch (e) {
+        return [];
+      }
+    }
+
+    // En nativo, usar búsqueda local
+    return search(query);
+  }
+
   /// Obtiene clientes de un negocio específico
   List<ClientModel> getClientsByBusiness(String business) {
     return _clients.where((client) =>
@@ -139,7 +125,71 @@ class ClientService {
     ).toList();
   }
 
+  /// Obtiene clientes de un negocio específico (asincrónico, usa Supabase en web)
+  Future<List<ClientModel>> getClientsByBusinessAsync(String negocioId) async {
+    // En web, usar Supabase
+    if (PlatformDetector.isWeb) {
+      try {
+        final data = await _supabaseClient.getClientsByBusiness(negocioId);
+        return data.map((json) => ClientModel.fromJson(json)).toList();
+      } catch (e) {
+        return [];
+      }
+    }
+
+    // En nativo, usar búsqueda local
+    return getClientsByBusiness(negocioId);
+  }
+
   /// Registra un nuevo cliente
+  Future<ClientModel?> registerClientAsync({
+    required String cedula,
+    required String nombreCompleto,
+    required String telefono,
+    String? email,
+    String? direccion,
+    String? negocioInicial,
+  }) async {
+    // En web, usar Supabase
+    if (PlatformDetector.isWeb) {
+      try {
+        final success = await _supabaseClient.createClient({
+          'cedula': cedula,
+          'nombre_completo': nombreCompleto,
+          'telefono': telefono,
+          'email': email,
+          'direccion': direccion,
+        });
+        
+        if (success) {
+          return ClientModel(
+            id: (_nextId++).toString(),
+            cedula: cedula,
+            nombreCompleto: nombreCompleto,
+            telefono: telefono,
+            email: email,
+            direccion: direccion,
+            fechaRegistro: DateTime.now(),
+            activo: true,
+          );
+        }
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // En nativo, usar lista en memoria
+    return registerClient(
+      cedula: cedula,
+      nombreCompleto: nombreCompleto,
+      telefono: telefono,
+      email: email,
+      direccion: direccion,
+      negocioInicial: negocioInicial,
+    );
+  }
+
+  /// Registra un nuevo cliente (sincrónico para compatibilidad)
   ClientModel registerClient({
     required String cedula,
     required String nombreCompleto,
@@ -245,6 +295,64 @@ class ClientService {
     _clients[index] = updatedClient;
   }
 
+  /// Desactiva un cliente de forma asincrónica (usa Supabase en web)
+  Future<bool> deactivateClientAsync(String clientId) async {
+    // En web, usar Supabase
+    if (PlatformDetector.isWeb) {
+      try {
+        return await _supabaseClient.deleteClient(clientId);
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // En nativo, usar desactivación local
+    try {
+      final client = _clients.firstWhere((c) => c.id == clientId);
+      deactivateClient(client.cedula);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Actualiza un cliente de forma asincrónica (usa Supabase en web)
+  Future<bool> updateClientAsync(String clientId, {
+    String? nombreCompleto,
+    String? telefono,
+    String? email,
+    String? direccion,
+  }) async {
+    // En web, usar Supabase
+    if (PlatformDetector.isWeb) {
+      try {
+        final updateData = <String, dynamic>{};
+        if (nombreCompleto != null) updateData['nombre_completo'] = nombreCompleto;
+        if (telefono != null) updateData['telefono'] = telefono;
+        if (email != null) updateData['email'] = email;
+        if (direccion != null) updateData['direccion'] = direccion;
+        
+        return await _supabaseClient.updateClient(clientId, updateData);
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // En nativo, usar actualización local
+    try {
+      final client = _clients.firstWhere((c) => c.id == clientId);
+      updateClient(client.cedula,
+        nombreCompleto: nombreCompleto,
+        telefono: telefono,
+        email: email,
+        direccion: direccion,
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /// Valida formato de cédula (básico)
   bool isValidCedula(String cedula) {
     // Remover espacios y guiones
@@ -265,63 +373,8 @@ class ClientService {
 
   /// Inicializa datos de ejemplo
   void initializeDefaultClients() {
-    if (_clients.isNotEmpty) return;
-
-    // Clientes de ejemplo para cada negocio
-    final defaultClients = [
-      {
-        'cedula': '12345678901',
-        'nombre': 'Juan Carlos Pérez',
-        'telefono': '809-555-0101',
-        'email': 'juan.perez@email.com',
-        'direccion': 'Calle Principal #123, Santiago',
-        'negocio': 'repuestos',
-      },
-      {
-        'cedula': '10987654321',
-        'nombre': 'María José González',
-        'telefono': '829-555-0202',
-        'email': 'maria.gonzalez@email.com',
-        'direccion': 'Av. Independencia #456, Santo Domingo',
-        'negocio': 'electrodomesticos',
-      },
-      {
-        'cedula': '45678912345',
-        'nombre': 'Roberto Antonio Martínez',
-        'telefono': '849-555-0303',
-        'direccion': 'Sector Los Alcarrizos #789',
-        'negocio': 'repuestos',
-      },
-      {
-        'cedula': '32165498701',
-        'nombre': 'Carmen Rosa Jiménez',
-        'telefono': '809-555-0404',
-        'email': 'carmen.jimenez@email.com',
-        'negocio': 'prestamos',
-      },
-      {
-        'cedula': '78912345603',
-        'nombre': 'Luis Fernando Rodríguez',
-        'telefono': '829-555-0505',
-        'direccion': 'Calle Duarte #321, La Vega',
-        'negocio': 'electrodomesticos',
-      },
-    ];
-
-    for (final clientData in defaultClients) {
-      try {
-        registerClient(
-          cedula: clientData['cedula']!,
-          nombreCompleto: clientData['nombre']!,
-          telefono: clientData['telefono']!,
-          email: clientData['email'],
-          direccion: clientData['direccion'],
-          negocioInicial: clientData['negocio'],
-        );
-      } catch (e) {
-        // Ignorar duplicados
-      }
-    }
+    // Sample clients disabled - clean system mode
+    // All clients must be created manually
   }
 
   /// Obtiene estadísticas de clientes

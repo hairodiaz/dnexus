@@ -15,7 +15,7 @@ class PermissionWidget extends StatelessWidget {
   final bool requireAll; // Para requiredPermissions: true = AND, false = OR
 
   const PermissionWidget({
-    Key? key,
+    super.key,
     required this.user,
     this.requiredPermission,
     this.requiredPermissions,
@@ -24,7 +24,7 @@ class PermissionWidget extends StatelessWidget {
     required this.child,
     this.fallback,
     this.requireAll = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -69,10 +69,10 @@ class ProfileCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const ProfileCard({
-    Key? key,
+    super.key,
     required this.user,
     this.onTap,
-  }) : super(key: key);
+  });
 
   IconData _getRoleIcon(UserRole role) {
     switch (role) {
@@ -133,9 +133,9 @@ class UserPermissionsView extends StatelessWidget {
   final UserModel user;
 
   const UserPermissionsView({
-    Key? key,
+    super.key,
     required this.user,
-  }) : super(key: key);
+  });
 
   IconData _getRoleIcon(UserRole role) {
     switch (role) {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../shared/services/auth_service_with_roles.dart';
-import '../../../shared/models/user_role.dart';
 import '../../dashboard/pages/dashboard_with_permissions.dart';
 
 /// Página de login con soporte para roles y permisos

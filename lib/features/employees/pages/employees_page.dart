@@ -12,9 +12,9 @@ class EmployeesPage extends StatefulWidget {
   final UserModel currentUser;
 
   const EmployeesPage({
-    Key? key,
+    super.key,
     required this.currentUser,
-  }) : super(key: key);
+  });
 
   @override
   State<EmployeesPage> createState() => _EmployeesPageState();

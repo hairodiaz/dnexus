@@ -14,12 +14,12 @@ class EditProductDialog extends StatefulWidget {
   final VoidCallback onProductUpdated;
 
   const EditProductDialog({
-    Key? key,
+    super.key,
     required this.product,
     required this.user,
     required this.categories,
     required this.onProductUpdated,
-  }) : super(key: key);
+  });
 
   @override
   State<EditProductDialog> createState() => _EditProductDialogState();
@@ -165,7 +165,7 @@ class _EditProductDialogState extends State<EditProductDialog> {
                         children: [
                           Expanded(
                             child: DropdownButtonFormField<String>(
-                              value: _selectedCategory,
+                              initialValue: _selectedCategory,
                               decoration: const InputDecoration(
                                 labelText: 'Categoría *',
                                 border: OutlineInputBorder(),
@@ -186,7 +186,7 @@ class _EditProductDialogState extends State<EditProductDialog> {
                           const SizedBox(width: 16),
                           Expanded(
                             child: DropdownButtonFormField<String>(
-                              value: _selectedUnit,
+                              initialValue: _selectedUnit,
                               decoration: const InputDecoration(
                                 labelText: 'Unidad *',
                                 border: OutlineInputBorder(),
@@ -530,11 +530,11 @@ class ReceiveStockDialog extends StatefulWidget {
   final VoidCallback onStockReceived;
 
   const ReceiveStockDialog({
-    Key? key,
+    super.key,
     required this.product,
     required this.user,
     required this.onStockReceived,
-  }) : super(key: key);
+  });
 
   @override
   State<ReceiveStockDialog> createState() => _ReceiveStockDialogState();
@@ -776,12 +776,12 @@ class ProductDetailDialog extends StatelessWidget {
   final VoidCallback? onReceiveStock;
 
   const ProductDetailDialog({
-    Key? key,
+    super.key,
     required this.product,
     required this.user,
     this.onEdit,
     this.onReceiveStock,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
