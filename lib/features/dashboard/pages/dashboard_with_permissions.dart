@@ -1257,12 +1257,12 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
                 await AuthService.logout();
                 print('✅ Sesión limpiada');
                 
-                // Navegar al login usando el navigator guardado
+                // Navegar a selección de sistemas usando el navigator guardado
                 // Usar scheduleMicrotask para evitar problemas de contexto
                 scheduleMicrotask(() {
                   if (mounted) {
-                    navigator.pushNamedAndRemoveUntil('/login', (route) => false);
-                    print('✅ Navegación al login completada');
+                    navigator.pushNamedAndRemoveUntil('/system_selection', (route) => false);
+                    print('✅ Navegación a selección de sistemas completada');
                   }
                 });
                 

@@ -10,16 +10,19 @@ class SeedManager {
     AppConfig.logger.i('Starting database seeding...');
     
     try {
-      // 1. Crear super admin si no existe
+      // 1. Crear usuario Owner (Dueño del sistema)
+      await _createOwnerUser();
+      
+      // 2. Crear super admin si no existe
       await _createSuperAdmin();
       
-      // 2. Crear negocios
+      // 3. Crear negocios
       await _createBusinesses();
       
-      // 3. Crear usuarios por negocio
+      // 4. Crear usuarios por negocio
       await _createBusinessUsers();
       
-      // 4. Crear módulos base
+      // 5. Crear módulos base
       await _createBaseModules();
       
       AppConfig.logger.i('Database seeding completed successfully');
@@ -28,6 +31,64 @@ class SeedManager {
       AppConfig.logger.e('Database seeding failed: $e');
       rethrow;
     }
+  }
+
+  /// Crear el usuario Owner del sistema (DUEÑO GENERAL)
+  static Future<void> _createOwnerUser() async {
+    AppConfig.logger.i('Creating Owner user...');
+    
+    // Verificar si ya existe un owner
+    const checkSql = '''
+      SELECT COUNT(*) as count FROM usuarios 
+      WHERE rol_sistema = \$1;
+    ''';
+    
+    final result = await DatabaseConnection.query(checkSql, parameters: ['owner']);
+    final count = result.first[0] as int;
+    
+    if (count > 0) {
+      AppConfig.logger.i('Owner already exists, skipping creation');
+      return;
+    }
+
+    // Crear el owner - Hairo Hernandez
+    final passwordHash = _hashPassword('Hernandez14');
+    
+    const insertSql = '''
+      INSERT INTO usuarios (
+        username, 
+        email, 
+        password_hash, 
+        nombre_completo, 
+        rol_sistema, 
+        activo
+      ) VALUES (
+        \$1, 
+        \$2, 
+        \$3, 
+        \$4, 
+        \$5, 
+        \$6
+      );
+    ''';
+    
+    await DatabaseConnection.execute(insertSql, parameters: [
+      'hairo',
+      'hairo@dnexus.com',
+      passwordHash,
+      'Hairo Hernandez - Dueño del Sistema',
+      'owner',
+      true,
+    ]);
+    
+    AppConfig.logger.i('Owner user created successfully');
+    AppConfig.logger.w('┌─────────────────────────────────────────┐');
+    AppConfig.logger.w('│ OWNER CREDENTIALS CREATED               │');
+    AppConfig.logger.w('├─────────────────────────────────────────┤');
+    AppConfig.logger.w('│ Username: hairo                         │');
+    AppConfig.logger.w('│ Password: Hernandez14                   │');
+    AppConfig.logger.w('│ Role: Owner (Dueño del Sistema)         │');
+    AppConfig.logger.w('└─────────────────────────────────────────┘');
   }
 
   /// Crear el super administrador inicial

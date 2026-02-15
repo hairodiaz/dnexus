@@ -11,7 +11,7 @@ class SupabaseHttpClient {
   SupabaseHttpClient._internal();
 
   static const String supabaseUrl = 'https://xmoqjehicmqkseejreng.supabase.co';
-  static const String anonKey = 'sb_publ1shabie_z1tR014T72qwqsCRF_8yg_rI13g1s';
+  static const String anonKey = 'sb_publishable_ZitROi4I72qwwqsCRF_0yg_ZE1l96lx';
 
   /// Headers requeridos para todas las peticiones
   Map<String, String> get _headers {
@@ -347,6 +347,95 @@ class SupabaseHttpClient {
       return [];
     } catch (e) {
       AppConfig.logger.e('Get transactions by business error: $e');
+      return [];
+    }
+  }
+
+  /// Create user (para SuperAdmin creando administrador)
+  Future<bool> createUser(Map<String, dynamic> userData) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$supabaseUrl/rest/v1/users'),
+        headers: _headers,
+        body: jsonEncode(userData),
+      );
+
+      return response.statusCode == 201;
+    } catch (e) {
+      AppConfig.logger.e('Create user error: $e');
+      return false;
+    }
+  }
+
+  /// Get system modules
+  Future<List<Map<String, dynamic>>> getSystemModules() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$supabaseUrl/rest/v1/system_modules?select=*'),
+        headers: _headers,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return List<Map<String, dynamic>>.from(data);
+      }
+      return [];
+    } catch (e) {
+      AppConfig.logger.e('Get system modules error: $e');
+      return [];
+    }
+  }
+
+  /// Update system module
+  Future<bool> updateSystemModule(String moduleId, Map<String, dynamic> data) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('$supabaseUrl/rest/v1/system_modules?id=eq.$moduleId'),
+        headers: _headers,
+        body: jsonEncode(data),
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      AppConfig.logger.e('Update system module error: $e');
+      return false;
+    }
+  }
+
+  /// Create audit log
+  Future<bool> createAuditLog(Map<String, dynamic> logData) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$supabaseUrl/rest/v1/audit_logs'),
+        headers: _headers,
+        body: jsonEncode(logData),
+      );
+
+      return response.statusCode == 201;
+    } catch (e) {
+      AppConfig.logger.e('Create audit log error: $e');
+      return false;
+    }
+  }
+
+  /// Get audit logs
+  Future<List<Map<String, dynamic>>> getAuditLogs({
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$supabaseUrl/rest/v1/audit_logs?select=*&order=fecha_hora.desc&limit=$limit&offset=$offset'),
+        headers: _headers,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return List<Map<String, dynamic>>.from(data);
+      }
+      return [];
+    } catch (e) {
+      AppConfig.logger.e('Get audit logs error: $e');
       return [];
     }
   }

@@ -598,10 +598,10 @@ class _DashboardPageState extends State<DashboardPage> {
               // Limpiar la sesión
               await AuthService.logout();
               
-              // Navegar al login limpiando todo el stack
+              // Navegar a selección de sistemas limpiando todo el stack
               if (context.mounted) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/login',
+                  '/system_selection',
                   (route) => false,
                 );
               }

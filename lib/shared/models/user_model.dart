@@ -84,6 +84,7 @@ class UserModel {
       'business_id': businessId,
       'role_icon': roleIcon,
       'role_color': roleColor,
+      'password': password,
     };
   }
 

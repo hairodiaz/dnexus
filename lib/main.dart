@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/database/database_initializer.dart';
 import 'core/config/app_config.dart';
+import 'features/auth/pages/splash_page.dart';
+import 'features/auth/pages/system_selection_page.dart';
 import 'features/auth/pages/login_page.dart';
+import 'features/auth/pages/repuestos_login_page.dart';
+import 'features/auth/pages/prestamos_login_page.dart';
+import 'features/auth/pages/inmuebles_login_page.dart';
+import 'features/auth/pages/owner_login_page.dart';
+import 'features/auth/pages/user_management_login_page.dart';
+import 'features/auth/pages/owner_dashboard_page.dart';
+import 'features/auth/pages/super_admin_panel_page.dart';
 import 'features/dashboard/pages/dashboard_with_permissions.dart';
 import 'shared/models/user_model.dart';
 
@@ -11,6 +22,18 @@ void main() async {
   
   try {
     AppConfig.logger.i('Starting D-Nexus application...');
+    
+    // Inicializar SharedPreferences para persistencia de sesión
+    await SharedPreferences.getInstance();
+    AppConfig.logger.i('SharedPreferences initialized successfully');
+    
+    // Inicializar Supabase
+    await Supabase.initialize(
+      url: 'https://xmoqjehicmqkseejreng.supabase.co',
+      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhtb3FqZWhpY21xa3NlZWpyZW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1MDQwNTQsImV4cCI6MjA4MTA4MDA1NH0.mUFFIKDPI-M8wXILW4FNmSwxCRODDdU_cAq36wMNoHs',
+    );
+    
+    AppConfig.logger.i('Supabase initialized successfully');
     
     // Inicializar la base de datos automáticamente
     await DatabaseInitializer.initialize();
@@ -53,20 +76,56 @@ class DNexusApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: '/login',
+      initialRoute: '/splash',
       routes: {
+        '/splash': (context) => const SplashPage(),
+        '/': (context) => const SystemSelectionPage(),
+        '/system_selection': (context) => const SystemSelectionPage(),
         '/login': (context) => const LoginPage(),
-        '/dashboard': (context) {
+        '/repuestos_login': (context) => const RepuestosLoginPage(),
+        '/prestamos_login': (context) => const PrestamosLoginPage(),
+        '/inmuebles_login': (context) => const InmueblesLoginPage(),
+        '/owner_login': (context) => const OwnerLoginPage(),
+        '/user_management_login': (context) => const UserManagementLoginPage(),
+        '/user_management_panel': (context) {
           final user = ModalRoute.of(context)?.settings.arguments as UserModel?;
           if (user == null) {
-            return const LoginPage();
+            return const SystemSelectionPage();
           }
-          return DashboardPageWithPermissions(user: user);
+          return OwnerDashboardPage(currentUser: user);
+        },
+        '/owner_dashboard': (context) {
+          final user = ModalRoute.of(context)?.settings.arguments as UserModel?;
+          if (user == null) {
+            return const SystemSelectionPage();
+          }
+          return OwnerDashboardPage(currentUser: user);
+        },
+        '/super_admin_panel': (context) {
+          final user = ModalRoute.of(context)?.settings.arguments as UserModel?;
+          if (user == null) {
+            return const SystemSelectionPage();
+          }
+          return SuperAdminPanelPage(currentUser: user);
+        },
+        '/dashboard': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments;
+          
+          if (args is UserModel) {
+            // Para compatibilidad con la ruta antigua
+            return DashboardPageWithPermissions(user: args);
+          } else if (args is Map<String, dynamic>) {
+            // Nuevo formato con system type
+            final user = args['user'] as UserModel;
+            return DashboardPageWithPermissions(user: user);
+          } else {
+            return const SystemSelectionPage();
+          }
         },
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
-          builder: (context) => const LoginPage(),
+          builder: (context) => const SystemSelectionPage(),
         );
       },
     );

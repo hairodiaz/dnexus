@@ -40,7 +40,7 @@ class TransactionService {
             concepto: json['concepto'] ?? '',
             categoria: json['categoria'] ?? '',
             metodoPago: json['metodo_pago'] ?? 'efectivo',
-            cliente: json['cliente_id'] != null ? json['cliente_id'].toString() : null,
+            cliente: json['cliente_id']?.toString(),
             negocioId: int.tryParse(negocioId) ?? 0,
             fecha: DateTime.tryParse(json['fecha'] ?? '') ?? DateTime.now(),
             observaciones: json['observaciones'] ?? '',

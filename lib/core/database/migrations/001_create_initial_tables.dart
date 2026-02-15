@@ -19,7 +19,7 @@ class CreateInitialTablesMigration extends Migration {
         email VARCHAR(100) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
         nombre_completo VARCHAR(100) NOT NULL,
-        rol_sistema VARCHAR(20) DEFAULT 'usuario' CHECK (rol_sistema IN ('super_admin', 'admin_negocio', 'usuario')),
+        rol_sistema VARCHAR(20) DEFAULT 'usuario' CHECK (rol_sistema IN ('owner', 'super_admin', 'admin_negocio', 'usuario')),
         activo BOOLEAN DEFAULT true,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

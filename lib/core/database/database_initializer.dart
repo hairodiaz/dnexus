@@ -17,9 +17,9 @@ class DatabaseInitializer {
       
       // Verificar si estamos en web
       if (kIsWeb) {
-        AppConfig.logger.i('Web platform detected - using simulated data');
+        AppConfig.logger.i('Web platform detected - skipping native database connection');
         _isInitialized = true;
-        AppConfig.logger.i('D-Nexus web mode initialization completed successfully');
+        AppConfig.logger.i('D-Nexus web mode initialization completed (using mock data for now)');
         return;
       }
       
