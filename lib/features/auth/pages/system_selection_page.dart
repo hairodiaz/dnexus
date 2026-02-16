@@ -92,7 +92,7 @@ class _SystemSelectionPageState extends State<SystemSelectionPage> {
     String route = '';
     switch (systemType) {
       case 'repuestos':
-        route = '/repuestos_login';
+        route = '/login';
         break;
       case 'prestamos':
         route = '/prestamos_login';

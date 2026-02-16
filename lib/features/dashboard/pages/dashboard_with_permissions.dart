@@ -82,6 +82,7 @@ class _DashboardPageWithPermissionsState extends State<DashboardPageWithPermissi
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
     

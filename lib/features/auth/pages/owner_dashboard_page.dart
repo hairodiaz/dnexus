@@ -64,27 +64,10 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
           .eq('rol', 'admin_negocio')
           .order('created_at', ascending: false);
 
-      // Cargar sistemas para cada admin
-      final adminsWithSystems = [];
-      for (var admin in response) {
-        final adminId = admin['id'];
-        final systemsResponse = await supabase
-            .from('admin_sistemas')
-            .select('sistema')
-            .eq('admin_id', adminId);
-        
-        final sistemas = (systemsResponse as List)
-            .map((s) => s['sistema'] as String)
-            .toList();
-        
-        admin['sistemas'] = sistemas;
-        adminsWithSystems.add(admin);
-      }
-
       setState(() {
-        _admins = List<Map<String, dynamic>>.from(adminsWithSystems);
+        _admins = List<Map<String, dynamic>>.from(response);
       });
-      AppConfig.logger.i('Loaded ${_admins.length} admins with systems');
+      AppConfig.logger.i('Loaded ${_admins.length} admins');
     } catch (e) {
       AppConfig.logger.e('Error loading admins: $e');
       rethrow;
@@ -112,11 +95,7 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
   void _showCreateAdminDialog() {
     final usernameController = TextEditingController();
     final nameController = TextEditingController();
-    final Map<String, bool> selectedSystems = {
-      'repuestos': false,
-      'prestamos': false,
-      'inmuebles': false,
-    };
+    bool adminEnabled = true;
 
     showDialog(
       context: context,
@@ -159,39 +138,16 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('Asignar a Sistemas:'),
-              const SizedBox(height: 8),
               StatefulBuilder(
-                builder: (context, setStateCheckbox) => Column(
-                  children: [
-                    CheckboxListTile(
-                      title: const Text('Repuestos'),
-                      value: selectedSystems['repuestos'],
-                      onChanged: (value) {
-                        setStateCheckbox(() {
-                          selectedSystems['repuestos'] = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text('Préstamos'),
-                      value: selectedSystems['prestamos'],
-                      onChanged: (value) {
-                        setStateCheckbox(() {
-                          selectedSystems['prestamos'] = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text('Inmuebles'),
-                      value: selectedSystems['inmuebles'],
-                      onChanged: (value) {
-                        setStateCheckbox(() {
-                          selectedSystems['inmuebles'] = value ?? false;
-                        });
-                      },
-                    ),
-                  ],
+                builder: (context, setStateCheckbox) => SwitchListTile(
+                  title: const Text('Habilitado para Panel de Administración'),
+                  subtitle: const Text('Permite acceder a gestión de usuarios, roles y sistemas'),
+                  value: adminEnabled,
+                  onChanged: (value) {
+                    setStateCheckbox(() {
+                      adminEnabled = value;
+                    });
+                  },
                 ),
               ),
             ],
@@ -207,7 +163,7 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
               await _createAdmin(
                 username: usernameController.text,
                 fullName: nameController.text,
-                systems: selectedSystems,
+                adminEnabled: adminEnabled,
               );
               if (mounted) Navigator.pop(context);
             },
@@ -221,19 +177,11 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
   Future<void> _createAdmin({
     required String username,
     required String fullName,
-    required Map<String, bool> systems,
+    required bool adminEnabled,
   }) async {
     if (username.isEmpty || fullName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Completa todos los campos')),
-      );
-      return;
-    }
-
-    final selectedSystems = systems.entries.where((e) => e.value).map((e) => e.key).toList();
-    if (selectedSystems.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona al menos un sistema')),
       );
       return;
     }
@@ -250,25 +198,16 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
         'nombre_completo': fullName,
         'rol': 'admin_negocio',
         'email': '$username@admin.local',
-        'activo': true,
+        'activo': adminEnabled,
       }).select();
 
-      final userId = userResponse[0]['id'];
-
-      // Asignar sistemas
-      for (var system in selectedSystems) {
-        await supabase.from('admin_sistemas').insert({
-          'admin_id': userId,
-          'sistema': system,
-        });
-      }
-
-      AppConfig.logger.i('Admin created: $username for systems: $selectedSystems');
+      AppConfig.logger.i('Admin created: $username (enabled: $adminEnabled)');
       await _loadAdmins();
 
       if (mounted) {
+        final statusText = adminEnabled ? 'habilitado' : 'deshabilitado';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Admin "$username" creado para ${selectedSystems.join(", ")}')),
+          SnackBar(content: Text('Admin "$username" creado ($statusText)')),
         );
       }
     } catch (e) {
@@ -632,8 +571,6 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
                       itemBuilder: (context, index) {
                         final admin = _admins[index];
                         final isActive = admin['activo'] ?? true;
-                        final sistemas = admin['sistemas'] as List<String>? ?? [];
-                        final sistemasText = sistemas.isEmpty ? 'N/A' : sistemas.join(', ');
 
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
@@ -644,7 +581,13 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
                               children: [
                                 const SizedBox(height: 4),
                                 Text('Usuario: ${admin['username']}'),
-                                Text('Sistemas: $sistemasText'),
+                                Text(
+                                  'Panel Admin: ${isActive ? "Habilitado" : "Deshabilitado"}',
+                                  style: TextStyle(
+                                    color: isActive ? Colors.green : Colors.red,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ],
                             ),
                             trailing: SizedBox(width: 200,

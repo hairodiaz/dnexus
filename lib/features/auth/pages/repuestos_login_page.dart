@@ -66,12 +66,18 @@ class _RepuestosLoginPageState extends State<RepuestosLoginPage> {
 
       AppConfig.logger.i('Repuestos login exitoso para: ${user.username} (${user.role})');
 
-      // Redirigir según el rol del usuario
+      // Los admin_negocio deben usar el panel de gestión de usuarios (Ctrl+↓+↑)
       if (user.role == 'admin_negocio') {
-        Navigator.of(context).pushReplacementNamed('/dashboard', arguments: {'user': user, 'system': 'repuestos'});
-      } else {
-        Navigator.of(context).pushReplacementNamed('/dashboard', arguments: {'user': user, 'system': 'repuestos'});
+        if (!mounted) return;
+        setState(() {
+          _errorMessage = 'Los administradores deben acceder desde el Panel de Administración (Ctrl+↓+↑)';
+        });
+        return;
       }
+
+      // Solo usuarios operativos pueden entrar al dashboard de Repuestos
+      if (!mounted) return;
+      Navigator.of(context).pushReplacementNamed('/dashboard', arguments: user);
       
     } catch (e, stackTrace) {
       AppConfig.logger.e('Error durante login de Repuestos: $e', error: e, stackTrace: stackTrace);

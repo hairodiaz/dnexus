@@ -6,11 +6,11 @@ import 'core/config/app_config.dart';
 import 'features/auth/pages/splash_page.dart';
 import 'features/auth/pages/system_selection_page.dart';
 import 'features/auth/pages/login_page.dart';
-import 'features/auth/pages/repuestos_login_page.dart';
 import 'features/auth/pages/prestamos_login_page.dart';
 import 'features/auth/pages/inmuebles_login_page.dart';
 import 'features/auth/pages/owner_login_page.dart';
 import 'features/auth/pages/user_management_login_page.dart';
+import 'features/auth/pages/admin_panel_page.dart';
 import 'features/auth/pages/owner_dashboard_page.dart';
 import 'features/auth/pages/super_admin_panel_page.dart';
 import 'features/dashboard/pages/dashboard_with_permissions.dart';
@@ -82,7 +82,6 @@ class DNexusApp extends StatelessWidget {
         '/': (context) => const SystemSelectionPage(),
         '/system_selection': (context) => const SystemSelectionPage(),
         '/login': (context) => const LoginPage(),
-        '/repuestos_login': (context) => const RepuestosLoginPage(),
         '/prestamos_login': (context) => const PrestamosLoginPage(),
         '/inmuebles_login': (context) => const InmueblesLoginPage(),
         '/owner_login': (context) => const OwnerLoginPage(),
@@ -92,7 +91,7 @@ class DNexusApp extends StatelessWidget {
           if (user == null) {
             return const SystemSelectionPage();
           }
-          return OwnerDashboardPage(currentUser: user);
+          return AdminPanelPage(currentUser: user);
         },
         '/owner_dashboard': (context) {
           final user = ModalRoute.of(context)?.settings.arguments as UserModel?;

@@ -49,8 +49,8 @@ class _UserManagementLoginPageState extends State<UserManagementLoginPage> {
     try {
       AppConfig.logger.i('Attempting User Management login for: ${_usernameController.text}');
       
-      // Validar con OwnerService (misma lógica que Owner)
-      final user = await OwnerService.validateOwnerLogin(
+      // Validar con OwnerService usando validateAdminLogin para admin_negocio
+      final user = await OwnerService.validateAdminLogin(
         _usernameController.text,
         _passwordController.text,
       );

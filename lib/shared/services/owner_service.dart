@@ -663,4 +663,71 @@ class OwnerService {
       return null;
     }
   }
+
+  /// Cambiar contraseña de un usuario
+  static Future<bool> changePassword(int userId, String newPassword) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final passwordHash = sha256.convert(utf8.encode(newPassword)).toString();
+      
+      await supabase
+          .from('users')
+          .update({'password': passwordHash})
+          .eq('id', userId);
+      
+      AppConfig.logger.i('Password changed for user ID: $userId');
+      return true;
+    } catch (e) {
+      AppConfig.logger.e('Error changing password: $e');
+      return false;
+    }
+  }
+
+  /// Validar login del Admin (para acceder al Panel de Administración)
+  static Future<UserModel?> validateAdminLogin(
+    String username,
+    String password,
+  ) async {
+    try {
+      AppConfig.logger.i('Validating Admin login for: $username');
+      
+      final supabase = Supabase.instance.client;
+      final hashedPassword = _hashPassword(password);
+
+      // Buscar usuario con rol 'admin_negocio'
+      final response = await supabase
+          .from('users')
+          .select()
+          .eq('username', username)
+          .eq('rol', 'admin_negocio')
+          .single();
+
+      final user = UserModel.fromJson(response);
+
+      // Verificar si el usuario está bloqueado o deshabilitado
+      if (!user.isActive) {
+        AppConfig.logger.w('Login blocked for inactive admin: $username');
+        return null;
+      }
+
+      // Validar contraseña
+      if (user.password != hashedPassword) {
+        AppConfig.logger.w('Invalid password for admin: $username');
+        return null;
+      }
+
+      // Guardar sesión para persistencia
+      await SessionService.saveSession(user);
+
+      AppConfig.logger.i('Admin login successful for: $username');
+      return user;
+
+    } on PostgrestException catch (e) {
+      AppConfig.logger.e('Postgrest error during admin login: $e');
+      return null;
+    } catch (e, stackTrace) {
+      AppConfig.logger.e('Error during admin login: $e', error: e, stackTrace: stackTrace);
+      return null;
+    }
+  }
 }
