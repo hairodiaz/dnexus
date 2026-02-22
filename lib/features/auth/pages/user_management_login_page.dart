@@ -68,8 +68,14 @@ class _UserManagementLoginPageState extends State<UserManagementLoginPage> {
 
       AppConfig.logger.i('User Management login exitoso para: ${user.username}');
 
-      // Redirigir al panel de gestión de usuarios
-      Navigator.of(context).pushReplacementNamed('/user_management_panel', arguments: user);
+      // Verificar si el usuario necesita cambiar contraseña (primera vez)
+      if (user.passwordNeedsChange ?? false) {
+        AppConfig.logger.i('Admin ${user.username} debe cambiar contraseña antes de acceder');
+        Navigator.of(context).pushReplacementNamed('/force_change_password', arguments: user);
+      } else {
+        // Redirigir al Admin Dashboard
+        Navigator.of(context).pushReplacementNamed('/admin_dashboard', arguments: user);
+      }
       
     } catch (e, stackTrace) {
       AppConfig.logger.e('Error durante login de User Management: $e', error: e, stackTrace: stackTrace);

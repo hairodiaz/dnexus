@@ -89,7 +89,7 @@ class _InmueblesLoginPageState extends State<InmueblesLoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF2196F3); // Azul
+    const primaryColor = Color(0xFF2196F3); // Azul (mismo de selección)
     
     return Scaffold(
       body: Container(

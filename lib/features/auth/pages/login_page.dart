@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../shared/models/user_model.dart';
 import '../../../shared/services/auth_service.dart';
 import '../../../core/config/app_config.dart';
 
@@ -71,8 +70,10 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.of(context).pushReplacementNamed('/owner_dashboard', arguments: user);
       } else if (user.role == 'super_admin' || user.role == 'superadmin') {
         Navigator.of(context).pushReplacementNamed('/super_admin_panel', arguments: user);
-      } else if (user.role == 'admin_negocio') {
-        Navigator.of(context).pushReplacementNamed('/dashboard', arguments: user);
+      } else if (user.role == 'admin' || user.role == 'admin_negocio') {
+        Navigator.of(context).pushReplacementNamed('/admin_dashboard', arguments: user);
+      } else if (user.role == 'employee') {
+        Navigator.of(context).pushReplacementNamed('/employee_dashboard', arguments: user);
       } else {
         Navigator.of(context).pushReplacementNamed('/dashboard', arguments: user);
       }
@@ -93,6 +94,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    const primaryColor = Color(0xFFFF8C00); // Naranja para Repuestos
+    
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -100,8 +103,8 @@ class _LoginPageState extends State<LoginPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+              primaryColor,
+              primaryColor.withOpacity(0.8),
             ],
           ),
         ),
@@ -120,22 +123,21 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Logo y título
-                      Icon(
-                        Icons.business_center,
-                        size: 64,
-                        color: Theme.of(context).colorScheme.primary,
+                      const Text(
+                        '🔧',
+                        style: TextStyle(fontSize: 64),
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'D-Nexus',
+                        'Repuestos',
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: primaryColor,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Sistema de Gestión Multi-Negocios',
+                        'Sistema de Gestión de Repuestos',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -196,7 +198,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _login,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            backgroundColor: primaryColor,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -254,41 +256,14 @@ class _LoginPageState extends State<LoginPage> {
                       
                       const SizedBox(height: 16),
                       
-                      // Info de credenciales por defecto
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.blue[50],
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.blue[200]!),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.info, color: Colors.blue[600], size: 16),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Credenciales de Prueba:',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.blue[800],
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Usuario: hairo\nContraseña: Hernandez14',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.blue[700],
-                                fontFamily: 'monospace',
-                              ),
-                            ),
-                          ],
+                      // Botón para volver
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.arrow_back),
+                        label: const Text('Volver a Selección'),
+                        onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: primaryColor),
+                          foregroundColor: primaryColor,
                         ),
                       ),
                     ],
@@ -302,3 +277,4 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+

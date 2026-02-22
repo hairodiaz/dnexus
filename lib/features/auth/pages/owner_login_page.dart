@@ -87,7 +87,7 @@ class _OwnerLoginPageState extends State<OwnerLoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF9C27B0); // Púrpura
+    const primaryColor = Color(0xFF795548); // Marrón para Owner
     
     return Scaffold(
       body: Container(

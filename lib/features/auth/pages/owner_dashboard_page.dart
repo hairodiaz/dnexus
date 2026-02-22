@@ -18,7 +18,7 @@ class OwnerDashboardPage extends StatefulWidget {
 
 class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
   List<Map<String, dynamic>> _admins = [];
-  Map<String, bool> _systemsActive = {
+  final Map<String, bool> _systemsActive = {
     'repuestos': true,
     'prestamos': true,
     'inmuebles': true,
@@ -243,7 +243,7 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
       if (mounted) {
         final action = newStatus ? 'desbloqueado' : 'bloqueado';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Admin ${action}: ${admin['username']}')),
+          SnackBar(content: Text('Admin $action: ${admin['username']}')),
         );
       }
     } catch (e) {

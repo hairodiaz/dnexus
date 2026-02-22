@@ -201,7 +201,7 @@ class _RolesManagementPageState extends State<RolesManagementPage> {
                           });
                         },
                       );
-                    }).toList(),
+                    }),
                     const SizedBox(height: 16),
                   ],
                 );
@@ -270,8 +270,8 @@ class _RolesManagementPageState extends State<RolesManagementPage> {
                 }
               }
             },
-            child: const Text('Eliminar', style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Eliminar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

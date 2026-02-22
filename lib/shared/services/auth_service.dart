@@ -14,7 +14,7 @@ class AuthService {
   /// Si se proporciona [system], también valida que el usuario tenga acceso a ese sistema
   static Future<UserModel?> login(String username, String password, {String? system}) async {
     try {
-      AppConfig.logger.i('Attempting login for username: $username' + (system != null ? ' on system: $system' : ''));
+      AppConfig.logger.i('Attempting login for username: $username${system != null ? ' on system: $system' : ''}');
       
       // En web, usar Supabase
       if (kIsWeb) {

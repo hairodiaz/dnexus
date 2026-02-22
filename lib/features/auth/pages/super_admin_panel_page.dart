@@ -185,6 +185,7 @@ class _SuperAdminPanelPageState extends State<SuperAdminPanelPage> {
         title: const Text('Panel SuperAdmin - D-Nexus'),
         elevation: 0,
         backgroundColor: Colors.deepPurple[700],
+        automaticallyImplyLeading: false,
         actions: [
           Padding(
             padding: const EdgeInsets.all(16.0),

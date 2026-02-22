@@ -10,9 +10,13 @@ import 'features/auth/pages/prestamos_login_page.dart';
 import 'features/auth/pages/inmuebles_login_page.dart';
 import 'features/auth/pages/owner_login_page.dart';
 import 'features/auth/pages/user_management_login_page.dart';
+import 'features/auth/pages/force_change_password_page.dart';
 import 'features/auth/pages/admin_panel_page.dart';
 import 'features/auth/pages/owner_dashboard_page.dart';
 import 'features/auth/pages/super_admin_panel_page.dart';
+import 'features/admin/pages/owner_dashboard_page.dart' as owner_dashboard;
+import 'features/admin/pages/admin_dashboard_page.dart' as admin_dashboard;
+import 'features/employee/pages/employee_dashboard_page.dart' as employee_dashboard;
 import 'features/dashboard/pages/dashboard_with_permissions.dart';
 import 'shared/models/user_model.dart';
 
@@ -35,15 +39,15 @@ void main() async {
     
     AppConfig.logger.i('Supabase initialized successfully');
     
-    // Inicializar la base de datos automáticamente
+    // Inicializar la base de datos automáticamente (solo en plataformas nativas)
     await DatabaseInitializer.initialize();
     
     AppConfig.logger.i('D-Nexus ready to start!');
     
     runApp(const DNexusApp());
     
-  } catch (e) {
-    AppConfig.logger.e('Failed to initialize D-Nexus: $e');
+  } catch (e, stackTrace) {
+    AppConfig.logger.e('Failed to initialize D-Nexus: $e', error: e, stackTrace: stackTrace);
     
     // Mostrar pantalla de error
     runApp(DNexusErrorApp(error: e.toString()));
@@ -82,10 +86,18 @@ class DNexusApp extends StatelessWidget {
         '/': (context) => const SystemSelectionPage(),
         '/system_selection': (context) => const SystemSelectionPage(),
         '/login': (context) => const LoginPage(),
+        '/repuestos_login': (context) => const LoginPage(),
         '/prestamos_login': (context) => const PrestamosLoginPage(),
         '/inmuebles_login': (context) => const InmueblesLoginPage(),
         '/owner_login': (context) => const OwnerLoginPage(),
         '/user_management_login': (context) => const UserManagementLoginPage(),
+        '/force_change_password': (context) {
+          final user = ModalRoute.of(context)?.settings.arguments as UserModel?;
+          if (user == null) {
+            return const SystemSelectionPage();
+          }
+          return ForceChangePasswordPage(user: user);
+        },
         '/user_management_panel': (context) {
           final user = ModalRoute.of(context)?.settings.arguments as UserModel?;
           if (user == null) {
@@ -98,7 +110,7 @@ class DNexusApp extends StatelessWidget {
           if (user == null) {
             return const SystemSelectionPage();
           }
-          return OwnerDashboardPage(currentUser: user);
+          return owner_dashboard.OwnerDashboardPage(currentUser: user);
         },
         '/super_admin_panel': (context) {
           final user = ModalRoute.of(context)?.settings.arguments as UserModel?;
@@ -106,6 +118,20 @@ class DNexusApp extends StatelessWidget {
             return const SystemSelectionPage();
           }
           return SuperAdminPanelPage(currentUser: user);
+        },
+        '/admin_dashboard': (context) {
+          final user = ModalRoute.of(context)?.settings.arguments as UserModel?;
+          if (user == null) {
+            return const SystemSelectionPage();
+          }
+          return admin_dashboard.AdminDashboardPage(currentUser: user);
+        },
+        '/employee_dashboard': (context) {
+          final user = ModalRoute.of(context)?.settings.arguments as UserModel?;
+          if (user == null) {
+            return const SystemSelectionPage();
+          }
+          return employee_dashboard.EmployeeDashboardPage(currentUser: user);
         },
         '/dashboard': (context) {
           final args = ModalRoute.of(context)?.settings.arguments;

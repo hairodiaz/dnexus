@@ -26,15 +26,14 @@ CREATE TABLE IF NOT EXISTS negocios (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Tabla de clientes
+-- Tabla de clientes (GLOBAL - compartido entre tous les negocios)
 CREATE TABLE IF NOT EXISTS clientes (
   id BIGSERIAL PRIMARY KEY,
-  cedula VARCHAR(20) UNIQUE,
-  nombre_completo VARCHAR(255) NOT NULL,
+  numero_documento VARCHAR(50) UNIQUE NOT NULL,
+  nombre VARCHAR(255) NOT NULL,
   email VARCHAR(255),
   telefono VARCHAR(20),
   direccion TEXT,
-  negocio_id BIGINT REFERENCES negocios(id),
   activo BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
@@ -135,7 +134,7 @@ ON CONFLICT (nombre) DO NOTHING;
 
 -- Crear índices para mejor rendimiento
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
-CREATE INDEX IF NOT EXISTS idx_clientes_negocio ON clientes(negocio_id);
+CREATE INDEX IF NOT EXISTS idx_clientes_documento ON clientes(numero_documento);
 CREATE INDEX IF NOT EXISTS idx_productos_negocio ON productos(negocio_id);
 CREATE INDEX IF NOT EXISTS idx_transacciones_negocio ON transacciones(negocio_id);
 CREATE INDEX IF NOT EXISTS idx_transacciones_cliente ON transacciones(cliente_id);

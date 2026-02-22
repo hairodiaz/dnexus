@@ -13,15 +13,15 @@ class DatabaseInitializer {
     if (_isInitialized) return;
 
     try {
-      AppConfig.logger.i('Starting D-Nexus database initialization...');
-      
       // Verificar si estamos en web
       if (kIsWeb) {
-        AppConfig.logger.i('Web platform detected - skipping native database connection');
+        AppConfig.logger.i('Web platform detected - database initialization will use Supabase REST API');
         _isInitialized = true;
-        AppConfig.logger.i('D-Nexus web mode initialization completed (using mock data for now)');
+        AppConfig.logger.i('D-Nexus web mode initialization completed (using Supabase)');
         return;
       }
+      
+      AppConfig.logger.i('Starting D-Nexus database initialization (native platform)...');
       
       // Solo en plataformas nativas (Windows, macOS, Linux)
       // 1. Conectar a la base de datos
@@ -38,6 +38,13 @@ class DatabaseInitializer {
       
     } catch (e) {
       AppConfig.logger.e('Database initialization failed: $e');
+      
+      // En web, no lanzar excepción - solo loguear
+      if (kIsWeb) {
+        _isInitialized = true; // Marcar como inicializado de todas formas
+        return;
+      }
+      
       rethrow;
     }
   }

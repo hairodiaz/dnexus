@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class SystemSelectionPage extends StatefulWidget {
-  const SystemSelectionPage({Key? key}) : super(key: key);
+  const SystemSelectionPage({super.key});
 
   @override
   State<SystemSelectionPage> createState() => _SystemSelectionPageState();
@@ -92,7 +92,7 @@ class _SystemSelectionPageState extends State<SystemSelectionPage> {
     String route = '';
     switch (systemType) {
       case 'repuestos':
-        route = '/login';
+        route = '/repuestos_login';
         break;
       case 'prestamos':
         route = '/prestamos_login';

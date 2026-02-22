@@ -14,6 +14,7 @@ class UserModel {
   final int? roleIcon;
   final int? roleColor;
   final String? password; // Para login desde Supabase
+  final bool? passwordNeedsChange; // Indica si debe cambiar contraseña al first login
 
   const UserModel({
     required this.id,
@@ -28,6 +29,7 @@ class UserModel {
     this.roleIcon,
     this.roleColor,
     this.password,
+    this.passwordNeedsChange,
   });
 
   /// Obtiene el rol como enum
@@ -50,6 +52,7 @@ class UserModel {
       roleIcon: map['role_icon'] as int?,
       roleColor: map['role_color'] as int?,
       password: map['password'] as String?,
+      passwordNeedsChange: map['password_needs_change'] as bool?,
     );
   }
 
@@ -67,6 +70,7 @@ class UserModel {
         ? DateTime.parse(json['updated_at'] as String)
         : null,
       password: json['password'] as String?,
+      passwordNeedsChange: json['password_needs_change'] as bool?,
     );
   }
 
@@ -85,6 +89,7 @@ class UserModel {
       'role_icon': roleIcon,
       'role_color': roleColor,
       'password': password,
+      'password_needs_change': passwordNeedsChange,
     };
   }
 
@@ -102,6 +107,7 @@ class UserModel {
     int? roleIcon,
     int? roleColor,
     String? password,
+    bool? passwordNeedsChange,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -116,6 +122,7 @@ class UserModel {
       roleIcon: roleIcon ?? this.roleIcon,
       roleColor: roleColor ?? this.roleColor,
       password: password ?? this.password,
+      passwordNeedsChange: passwordNeedsChange ?? this.passwordNeedsChange,
     );
   }
 

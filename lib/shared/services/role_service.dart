@@ -47,7 +47,7 @@ class RoleService {
           .eq('id', roleId)
           .single();
 
-      final role = RoleModel.fromJson(roleResponse as Map<String, dynamic>);
+      final role = RoleModel.fromJson(roleResponse);
 
       // Obtener permisos del rol
       final permissionsResponse = await Supabase.instance.client
@@ -130,7 +130,7 @@ class RoleService {
           })
           .select();
 
-      final role = RoleModel.fromJson(response[0] as Map<String, dynamic>);
+      final role = RoleModel.fromJson(response[0]);
       AppConfig.logger.i('Role created successfully: $nombre');
       return role;
     } catch (e) {

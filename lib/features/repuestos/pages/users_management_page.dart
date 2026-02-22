@@ -155,7 +155,7 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
                       });
                     },
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),
