@@ -298,7 +298,7 @@ class AuthService {
       if (!kIsWeb) return true; // En modo no-web, asumir acceso
       
       // Buscar si existe registro en admin_sistemas
-      final response = await Supabase.instance.client
+      await Supabase.instance.client
           .from('admin_sistemas')
           .select('id')
           .eq('admin_id', userId)

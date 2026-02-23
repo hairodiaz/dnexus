@@ -54,5 +54,5 @@ class RoleModel {
   Map<String, dynamic> toJson() => _$RoleModelToJson(this);
 
   @override
-  String toString() => 'RoleModel(id: $id, nombre: $nombre, sistema: $sistema)';
+  String toString() => 'RoleModel(id: $id, nombre: $nombre, negocioId: $negocioId)';
 }

@@ -192,7 +192,7 @@ class _OwnerDashboardPageState extends State<OwnerDashboardPage> {
       final hashedPassword = sha256.convert(defaultPassword.codeUnits).toString();
 
       // Crear usuario con contraseña por defecto
-      final userResponse = await supabase.from('users').insert({
+      await supabase.from('users').insert({
         'username': username,
         'password': hashedPassword,
         'nombre_completo': fullName,
