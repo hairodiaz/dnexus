@@ -94,7 +94,13 @@ CREATE TABLE IF NOT EXISTS role_modulos (
 CREATE INDEX IF NOT EXISTS idx_role_modulos_role_id ON role_modulos(role_id);
 CREATE INDEX IF NOT EXISTS idx_role_modulos_modulo_id ON role_modulos(modulo_id);
 
--- Insertar módulos por defecto
+-- Agregar columnas faltantes a system_modules
+ALTER TABLE IF EXISTS system_modules ADD COLUMN IF NOT EXISTS sistema VARCHAR(50);
+ALTER TABLE IF EXISTS system_modules ADD COLUMN IF NOT EXISTS ruta VARCHAR(255);
+ALTER TABLE IF EXISTS system_modules ADD COLUMN IF NOT EXISTS icono VARCHAR(100);
+ALTER TABLE IF EXISTS system_modules ADD COLUMN IF NOT EXISTS estado BOOLEAN DEFAULT true;
+
+-- Insertar módulos por defecto (ignorar duplicados)
 INSERT INTO system_modules (sistema, nombre, descripcion, ruta, icono, estado) VALUES
 -- Repuesto system
 ('Repuesto', 'Inventario', 'Gestión de inventario de repuestos', '/repuesto/inventario', 'inventory', true),
@@ -113,4 +119,4 @@ INSERT INTO system_modules (sistema, nombre, descripcion, ruta, icono, estado) V
 ('Inmuebles', 'Inquilinos', 'Gestión de inquilinos', '/inmuebles/inquilinos', 'people', true),
 ('Inmuebles', 'Arriendos', 'Registro de arriendos', '/inmuebles/arriendos', 'calendar_today', true),
 ('Inmuebles', 'Reportes', 'Reportes de propiedades y arriendos', '/inmuebles/reportes', 'bar_chart', true)
-ON CONFLICT DO NOTHING;
+ON CONFLICT (nombre) DO NOTHING;
