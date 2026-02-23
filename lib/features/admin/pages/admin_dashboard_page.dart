@@ -26,6 +26,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   List<BusinessModel> _businesses = [];
   BusinessModel? _selectedBusiness;
   bool _isLoading = false;
+  
+  // Sistema options
+  static const List<String> _sistemaOptions = ['Repuesto', 'Prestamo', 'Inmuebles'];
 
   @override
   void initState() {

@@ -11,6 +11,7 @@ class BusinessModel {
   final int createdBy;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final String sistema; // 'Repuesto', 'Prestamo', 'Inmuebles'
 
   List<ContactModel> contactos;
   List<AddressModel> direcciones;
@@ -24,6 +25,7 @@ class BusinessModel {
     required this.createdBy,
     required this.createdAt,
     this.updatedAt,
+    this.sistema = 'Repuesto',
     this.contactos = const [],
     this.direcciones = const [],
   });
@@ -72,6 +74,7 @@ class BusinessModel {
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : null,
+      sistema: json['sistema'] as String? ?? 'Repuesto',
       contactos: (json['contactos'] as List<dynamic>?)
               ?.map((c) => ContactModel.fromJson(c as Map<String, dynamic>))
               .toList() ??
@@ -99,6 +102,7 @@ class BusinessModel {
       'created_by': createdBy,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
+      'sistema': sistema,
     };
   }
 
@@ -112,6 +116,7 @@ class BusinessModel {
     int? createdBy,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? sistema,
     List<ContactModel>? contactos,
     List<AddressModel>? direcciones,
   }) {
@@ -124,6 +129,7 @@ class BusinessModel {
       createdBy: createdBy ?? this.createdBy,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      sistema: sistema ?? this.sistema,
       contactos: contactos ?? this.contactos,
       direcciones: direcciones ?? this.direcciones,
     );
@@ -131,5 +137,5 @@ class BusinessModel {
 
   @override
   String toString() =>
-      'BusinessModel(id: $id, nombre: $nombre, nit: $nit, estado: $estado)';
+      'BusinessModel(id: $id, nombre: $nombre, nit: $nit, estado: $estado, sistema: $sistema)';
 }

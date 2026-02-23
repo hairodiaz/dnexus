@@ -57,6 +57,7 @@ class BusinessRepository {
     String? nit,
     DateTime? fechaRegistro,
     required int adminId,
+    String sistema = 'Repuesto',
     List<ContactModel> contactos = const [],
     List<AddressModel> direcciones = const [],
   }) async {
@@ -69,6 +70,7 @@ class BusinessRepository {
             fechaRegistro?.toIso8601String().split('T').first,
         'estado': true,
         'created_by': adminId,
+        'sistema': sistema,
       };
 
       final businessResponse =
@@ -123,14 +125,21 @@ class BusinessRepository {
     required String nombre,
     String? nit,
     DateTime? fechaRegistro,
+    String? sistema,
   }) async {
     try {
-      await client.from('negocios').update({
+      final updateData = {
         'nombre': nombre,
         'nit': nit,
         'fecha_registro': fechaRegistro?.toIso8601String().split('T').first,
         'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', businessId);
+      };
+      
+      if (sistema != null) {
+        updateData['sistema'] = sistema;
+      }
+
+      await client.from('negocios').update(updateData).eq('id', businessId);
 
       return true;
     } catch (e) {
