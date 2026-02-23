@@ -68,8 +68,8 @@ class EmployeeRepository {
         if (roleData != null) {
           final role = RoleModel.fromJson(roleData as Map<String, dynamic>);
           // Cargar módulos del rol
-          role.moduloIds = await getModulosForRole(role.id);
-          roles.add(role);
+          final moduloIds = await getModulosForRole(role.id!);
+          roles.add(role.copyWith(moduloIds: moduloIds));
         }
       }
 
@@ -272,12 +272,11 @@ class EmployeeRepository {
           .eq('negocio_id', businessId)
           .eq('estado', true)
           .order('nombre');
-
       final roles = <RoleModel>[];
       for (var roleData in response as List) {
         final role = RoleModel.fromJson(roleData);
-        role.moduloIds = await getModulosForRole(role.id);
-        roles.add(role);
+        final moduloIds = await getModulosForRole(role.id!);
+        roles.add(role.copyWith(moduloIds: moduloIds));
       }
 
       return roles;
@@ -324,8 +323,7 @@ class EmployeeRepository {
       }
 
       final role = RoleModel.fromJson(roleResponse);
-      role.moduloIds = moduloIds;
-      return role;
+      return role.copyWith(moduloIds: moduloIds);
     } catch (e) {
       print('Error creating role: $e');
       rethrow;

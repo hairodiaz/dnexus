@@ -5,7 +5,10 @@ import '../../../shared/models/user_model.dart';
 import '../../../shared/models/business_model_new.dart';
 import '../../../shared/models/contact_model.dart';
 import '../../../shared/models/address_model.dart';
+import '../../../shared/models/employee_model.dart';
+import '../../../shared/models/role_model.dart';
 import '../../../core/repositories/business_repository.dart';
+import '../../../core/repositories/employee_repository.dart';
 
 /// Dashboard del Administrador - Panel de gestión de negocios y empleados
 class AdminDashboardPage extends StatefulWidget {
@@ -23,8 +26,12 @@ class AdminDashboardPage extends StatefulWidget {
 class _AdminDashboardPageState extends State<AdminDashboardPage> {
   int _selectedIndex = 0;
   late BusinessRepository _businessRepository;
+  late EmployeeRepository _employeeRepository;
   List<BusinessModel> _businesses = [];
   BusinessModel? _selectedBusiness;
+  List<EmployeeModel> _employees = [];
+  EmployeeModel? _selectedEmployee;
+  List<RoleModel> _roles = [];
   bool _isLoading = false;
   
   // Sistema options
@@ -34,6 +41,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   void initState() {
     super.initState();
     _businessRepository = BusinessRepository(client: Supabase.instance.client);
+    _employeeRepository = EmployeeRepository(client: Supabase.instance.client);
     _loadBusinesses();
   }
 
@@ -805,30 +813,547 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   Widget _buildEmployeesSection() {
-    return Center(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.people,
-            size: 64,
-            color: Colors.grey[300],
+          // Encabezado
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Gestión de Empleados',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Administra los empleados por negocio',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              if (_selectedBusiness != null)
+                ElevatedButton.icon(
+                  onPressed: () => _showCreateEmployeeDialog(),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Nuevo Empleado'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.indigo[600],
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  'Selecciona un negocio primero',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.orange[600],
+                  ),
+                ),
+            ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            'Gestión de Empleados',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Administrar empleados por negocio',
+          const SizedBox(height: 24),
+
+          // Selector de negocio
+          if (_businesses.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Negocio Seleccionado',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButton<BusinessModel>(
+                    value: _selectedBusiness,
+                    isExpanded: true,
+                    items: _businesses.map((business) {
+                      return DropdownMenuItem(
+                        value: business,
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: _getSistemaColor(business.sistema),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(business.nombre),
+                            ),
+                            Text(
+                              business.nit,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (business) {
+                      if (business != null) {
+                        setState(() {
+                          _selectedBusiness = business;
+                          _selectedEmployee = null;
+                          _employees = [];
+                        });
+                        _loadEmployeesForBusiness(business.id!);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            )
+          else
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Text(
+                  'No hay negocios registrados',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
+            ),
+
+          const SizedBox(height: 32),
+
+          // Tabla de empleados
+          if (_selectedBusiness != null)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Empleados del negocio: ${_selectedBusiness!.nombre}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildEmployeesTable(),
+                const SizedBox(height: 32),
+                // Detalles del empleado seleccionado
+                if (_selectedEmployee != null)
+                  _buildEmployeeDetails(),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmployeesTable() {
+    if (_isLoading) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_employees.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Text(
+            'No hay empleados registrados en este negocio',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.grey[600],
             ),
           ),
+        ),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          columns: const <DataColumn>[
+            DataColumn(label: Text('Nombre')),
+            DataColumn(label: Text('Documento')),
+            DataColumn(label: Text('Cargo')),
+            DataColumn(label: Text('Roles')),
+            DataColumn(label: Text('Usuario')),
+            DataColumn(label: Text('Estado')),
+            DataColumn(label: Text('Acciones')),
+          ],
+          rows: <DataRow>[
+            for (var employee in _employees)
+              DataRow(
+                selected: _selectedEmployee?.id == employee.id,
+                onSelectChanged: (selected) {
+                  if (selected == true) {
+                    setState(() => _selectedEmployee = employee);
+                  }
+                },
+                cells: <DataCell>[
+                  DataCell(Text(employee.nombre)),
+                  DataCell(Text(employee.numeroDocumento ?? 'N/A')),
+                  DataCell(Text(employee.cargo ?? 'N/A')),
+                  DataCell(
+                    Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: (employee.roles?.map((role) {
+                        return Chip(
+                          label: Text(
+                            role.nombre,
+                            style: const TextStyle(fontSize: 11),
+                          ),
+                          backgroundColor: Colors.indigo[100],
+                          labelPadding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 0,
+                          ),
+                        );
+                      }).toList()) ??
+                        [],
+                    ),
+                  ),
+                  DataCell(
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: (employee.tieneUsuarioSistema ?? false)
+                            ? Colors.green[100]
+                            : Colors.grey[200],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        (employee.tieneUsuarioSistema ?? false) ? 'Sí' : 'No',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: (employee.tieneUsuarioSistema ?? false)
+                              ? Colors.green[700]
+                              : Colors.grey[700],
+                        ),
+                      ),
+                    ),
+                  ),
+                  DataCell(
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: employee.estado ? Colors.blue[100] : Colors.red[100],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        employee.estado ? 'Activo' : 'Inactivo',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: employee.estado ? Colors.blue[700] : Colors.red[700],
+                        ),
+                      ),
+                    ),
+                  ),
+                  DataCell(
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () => _showEditEmployeeDialog(employee),
+                          icon: const Icon(Icons.edit),
+                          tooltip: 'Editar',
+                          iconSize: 18,
+                        ),
+                        IconButton(
+                          onPressed: () => _toggleEmployeeStatus(employee),
+                          icon: Icon(
+                            employee.estado ? Icons.block : Icons.check_circle,
+                          ),
+                          tooltip: employee.estado ? 'Desactivar' : 'Activar',
+                          iconSize: 18,
+                        ),
+                        IconButton(
+                          onPressed: () => _deleteEmployee(employee),
+                          icon: const Icon(Icons.delete),
+                          tooltip: 'Eliminar',
+                          iconSize: 18,
+                          color: Colors.red,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmployeeDetails() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.indigo[200]!),
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.indigo[50],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Detalles del Empleado',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.indigo[900],
+                ),
+              ),
+              IconButton(
+                onPressed: () => setState(() => _selectedEmployee = null),
+                icon: const Icon(Icons.close),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          GridView.count(
+            crossAxisCount: 3,
+            childAspectRatio: 3,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            shrinkWrap: true,
+            children: [
+              _buildDetailField('Nombre', _selectedEmployee!.nombre),
+              _buildDetailField('Documento', _selectedEmployee!.numeroDocumento ?? 'N/A'),
+              _buildDetailField('Email', _selectedEmployee!.email ?? 'N/A'),
+              _buildDetailField('Teléfono', _selectedEmployee!.telefono ?? 'N/A'),
+              _buildDetailField('Cargo', _selectedEmployee!.cargo ?? 'N/A'),
+              _buildDetailField(
+                'Estado',
+                _selectedEmployee!.estado ? 'Activo' : 'Inactivo',
+              ),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  Widget _buildDetailField(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: Colors.grey[700],
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.bodyMedium,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  Future<void> _loadEmployeesForBusiness(int businessId) async {
+    setState(() => _isLoading = true);
+    try {
+      final employees = await _employeeRepository.getEmployeesByBusiness(businessId);
+      setState(() => _employees = employees);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _showCreateEmployeeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => _EmployeeFormDialog(
+        onSubmit: (data) async {
+          try {
+            await _employeeRepository.createEmployee(
+              businessId: _selectedBusiness!.id!,
+              nombre: data['nombre'] as String,
+              numeroDocumento: data['numeroDocumento'] as String?,
+              email: data['email'] as String?,
+              telefono: data['telefono'] as String?,
+              cargo: data['cargo'] as String?,
+              roleIds: (data['roleIds'] as List<int>?) ?? [],
+            );
+            if (mounted) {
+              Navigator.pop(context);
+              _loadEmployeesForBusiness(_selectedBusiness!.id!);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Empleado creado exitosamente')),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: $e')),
+              );
+            }
+          }
+        },
+        businessId: _selectedBusiness!.id!,
+        businessName: _selectedBusiness!.nombre,
+      ),
+    );
+  }
+
+  void _showEditEmployeeDialog(EmployeeModel employee) {
+    showDialog(
+      context: context,
+      builder: (context) => _EmployeeFormDialog(
+        employee: employee,
+        onSubmit: (data) async {
+          try {
+            await _employeeRepository.updateEmployee(
+              employeeId: employee.id!,
+              nombre: data['nombre'] as String,
+              numeroDocumento: data['numeroDocumento'] as String?,
+              email: data['email'] as String?,
+              telefono: data['telefono'] as String?,
+              cargo: data['cargo'] as String?,
+            );
+            
+            // Actualizar roles
+            final roleIds = data['roleIds'] as List<int>?;
+            if (roleIds != null) {
+              await _employeeRepository.updateEmployeeRoles(
+                employeeId: employee.id!,
+                newRoleIds: roleIds,
+              );
+            }
+            
+            if (mounted) {
+              Navigator.pop(context);
+              _loadEmployeesForBusiness(_selectedBusiness!.id!);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Empleado actualizado exitosamente')),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: $e')),
+              );
+            }
+          }
+        },
+        businessId: _selectedBusiness!.id!,
+        businessName: _selectedBusiness!.nombre,
+      ),
+    );
+  }
+
+  Future<void> _toggleEmployeeStatus(EmployeeModel employee) async {
+    try {
+      await _employeeRepository.toggleEmployeeStatus(employee.id!, !employee.estado);
+      _loadEmployeesForBusiness(_selectedBusiness!.id!);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Empleado ${employee.estado ? 'desactivado' : 'activado'} exitosamente',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteEmployee(EmployeeModel employee) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar eliminación'),
+        content: Text(
+          '¿Estás seguro de que quieres eliminar al empleado ${employee.nombre}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar'),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _employeeRepository.toggleEmployeeStatus(employee.id!, false);
+        _loadEmployeesForBusiness(_selectedBusiness!.id!);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Empleado eliminado exitosamente')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e')),
+          );
+        }
+      }
+    }
   }
 
   Widget _buildRolesSection() {
@@ -1005,6 +1530,458 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 }
 
 // ============ DIALOGS ============
+
+/// Dialog para crear/editar empleados con formulario de 3 pasos
+class _EmployeeFormDialog extends StatefulWidget {
+  final Function(Map<String, dynamic>) onSubmit;
+  final int businessId;
+  final String businessName;
+  final EmployeeModel? employee;
+
+  const _EmployeeFormDialog({
+    required this.onSubmit,
+    required this.businessId,
+    required this.businessName,
+    this.employee,
+  });
+
+  @override
+  State<_EmployeeFormDialog> createState() => _EmployeeFormDialogState();
+}
+
+class _EmployeeFormDialogState extends State<_EmployeeFormDialog>
+    with SingleTickerProviderStateMixin {
+  late TextEditingController _nombreController;
+  late TextEditingController _documentoController;
+  late TextEditingController _emailController;
+  late TextEditingController _telefonoController;
+  late TextEditingController _cargoController;
+  late PageController _pageController;
+  int _currentStep = 0;
+  late EmployeeRepository _employeeRepository;
+  List<RoleModel> _rolesDisponibles = [];
+  Set<int> _rolesSeleccionados = {};
+  bool _crearUsuarioSistema = false;
+  late TextEditingController _usernameController;
+  late TextEditingController _passwordController;
+  bool _isLoadingRoles = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _empleadoRepository = EmployeeRepository(client: Supabase.instance.client);
+    _nombreController =
+        TextEditingController(text: widget.employee?.nombre ?? '');
+    _documentoController =
+        TextEditingController(text: widget.employee?.numeroDocumento ?? '');
+    _emailController =
+        TextEditingController(text: widget.employee?.email ?? '');
+    _telefonoController =
+        TextEditingController(text: widget.employee?.telefono ?? '');
+    _cargoController =
+        TextEditingController(text: widget.employee?.cargo ?? '');
+    _usernameController = TextEditingController();
+    _passwordController = TextEditingController();
+    _pageController = PageController();
+    _crearUsuarioSistema = widget.employee?.tieneUsuarioSistema ?? false;
+    _loadRoles();
+  }
+
+  late EmployeeRepository _empleadoRepository;
+
+  @override
+  void dispose() {
+    _nombreController.dispose();
+    _documentoController.dispose();
+    _emailController.dispose();
+    _telefonoController.dispose();
+    _cargoController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadRoles() async {
+    setState(() => _isLoadingRoles = true);
+    try {
+      final roles =
+          await _empleadoRepository.getRolesByBusiness(widget.businessId);
+      setState(() {
+        _rolesDisponibles = roles;
+        // Si es edición, cargar roles actuales
+        if (widget.employee != null) {
+          _rolesSeleccionados = widget.employee!.roleIds.toSet();
+        }
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cargar roles: $e')),
+        );
+      }
+    } finally {
+      setState(() => _isLoadingRoles = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.7,
+        height: MediaQuery.of(context).size.height * 0.8,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            // Encabezado
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.indigo[600],
+                borderRadius:
+                    const BorderRadius.only(topLeft: Radius.circular(12)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.employee == null
+                            ? 'Nuevo Empleado'
+                            : 'Editar Empleado',
+                        style:
+                            const TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Negocio: ${widget.businessName}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+            // Indicador de pasos
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildStepIndicator(0, 'Información'),
+                  Container(
+                    width: 60,
+                    height: 2,
+                    color:
+                        _currentStep >= 1 ? Colors.indigo[600] : Colors.grey[300],
+                  ),
+                  _buildStepIndicator(1, 'Roles'),
+                  if (!_crearUsuarioSistema)
+                    Container(
+                      width: 60,
+                      height: 2,
+                      color: Colors.grey[300],
+                    ),
+                  if (!_crearUsuarioSistema)
+                    _buildStepIndicator(2, 'Confirmación', enabled: false),
+                ],
+              ),
+            ),
+            // Contenido del formulario
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: (index) =>
+                    setState(() => _currentStep = index),
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _buildStep1(), // Información básica
+                  _buildStep2(), // Selección de roles
+                ],
+              ),
+            ),
+            // Botones de navegación
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: Colors.grey[300]!)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (_currentStep > 0)
+                    ElevatedButton(
+                      onPressed: _goToPreviousStep,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[300],
+                        foregroundColor: Colors.black,
+                      ),
+                      child: const Text('Anterior'),
+                    )
+                  else
+                    const SizedBox(),
+                  ElevatedButton(
+                    onPressed: _currentStep == 1 ? _submit : _goToNextStep,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.indigo[600],
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text(
+                      _currentStep == 1 ? 'Guardar' : 'Siguiente',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStepIndicator(int step, String label, {bool enabled = true}) {
+    final isActive = _currentStep >= step;
+    return Column(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isActive ? Colors.indigo[600] : Colors.grey[300],
+          ),
+          child: Center(
+            child: Text(
+              '${step + 1}',
+              style: TextStyle(
+                color: isActive ? Colors.white : Colors.grey[600],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: isActive ? Colors.indigo[600] : Colors.grey[600],
+            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStep1() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Información del Empleado',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildTextField(
+            _nombreController,
+            'Nombre Completo',
+            Icons.person,
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            _documentoController,
+            'Número de Documento',
+            Icons.badge,
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            _emailController,
+            'Email (Opcional)',
+            Icons.email,
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            _telefonoController,
+            'Teléfono (Opcional)',
+            Icons.phone,
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            _cargoController,
+            'Cargo',
+            Icons.work,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep2() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Asignar Roles',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Selecciona los roles que tendrá este empleado en el negocio',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 24),
+          if (_isLoadingRoles)
+            const Center(child: CircularProgressIndicator())
+          else if (_rolesDisponibles.isEmpty)
+            Center(
+              child: Text(
+                'No hay roles disponibles en este negocio',
+                style:
+                    Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+              ),
+            )
+          else
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: _rolesDisponibles.map((role) {
+                final isSelected = _rolesSeleccionados.contains(role.id);
+                return FilterChip(
+                  label: Text(role.nombre),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    setState(() {
+                      if (selected) {
+                        _rolesSeleccionados.add(role.id!);
+                      } else {
+                        _rolesSeleccionados.remove(role.id!);
+                      }
+                    });
+                  },
+                  backgroundColor: Colors.grey[100],
+                  selectedColor: Colors.indigo[100],
+                  side: BorderSide(
+                    color: isSelected ? Colors.indigo[600]! : Colors.grey[300]!,
+                  ),
+                );
+              }).toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label,
+    IconData icon,
+  ) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+      ),
+    );
+  }
+
+  void _goToNextStep() {
+    if (_currentStep == 0) {
+      if (_nombreController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('El nombre del empleado es obligatorio')),
+        );
+        return;
+      }
+      if (_documentoController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('El documento es obligatorio')),
+        );
+        return;
+      }
+    }
+    if (_currentStep < 1) {
+      setState(() => _currentStep++);
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _goToPreviousStep() {
+    if (_currentStep > 0) {
+      setState(() => _currentStep--);
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  Future<void> _submit() async {
+    if (_rolesSeleccionados.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Debe asignar al menos un rol')),
+      );
+      return;
+    }
+
+    try {
+      final data = <String, dynamic>{
+        'nombre': _nombreController.text,
+        'numeroDocumento': _documentoController.text.isEmpty
+            ? null
+            : _documentoController.text,
+        'email': _emailController.text.isEmpty ? null : _emailController.text,
+        'telefono': _telefonoController.text.isEmpty
+            ? null
+            : _telefonoController.text,
+        'cargo': _cargoController.text,
+        'roleIds': _rolesSeleccionados.toList(),
+      };
+
+      widget.onSubmit(data);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+}
 
 class _CreateBusinessDialog extends StatefulWidget {
   final BusinessRepository repository;
