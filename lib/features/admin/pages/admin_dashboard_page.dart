@@ -343,285 +343,33 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Gestión de Negocios',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Gestión de Negocios',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: _showCreateBusinessDialog,
+                icon: const Icon(Icons.add_business),
+                label: const Text('+ Nuevo Negocio'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 24),
-          
-          // Selector de negocio
-          if (_businesses.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[300]!),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.store),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: DropdownButton<BusinessModel>(
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      value: _selectedBusiness,
-                      items: _businesses
-                          .map((b) => DropdownMenuItem(
-                            value: b,
-                            child: Text(b.nombre),
-                          ))
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() => _selectedBusiness = value);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          
-          const SizedBox(height: 24),
 
-          // Mostrar detalles del negocio seleccionado
-          if (_selectedBusiness != null)
-            Column(
-              children: [
-                // Información básica
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Información General',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            Row(
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: () => _showEditBusinessDialog(
-                                    _selectedBusiness!,
-                                  ),
-                                  icon: const Icon(Icons.edit),
-                                  label: const Text('Editar'),
-                                ),
-                                const SizedBox(width: 8),
-                                ElevatedButton.icon(
-                                  onPressed: () =>
-                                      _toggleBusinessStatus(_selectedBusiness!),
-                                  icon: Icon(_selectedBusiness!.estado
-                                      ? Icons.block
-                                      : Icons.check_circle),
-                                  label: Text(
-                                    _selectedBusiness!.estado
-                                        ? 'Desactivar'
-                                        : 'Activar',
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: _selectedBusiness!.estado
-                                        ? Colors.orange
-                                        : Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        GridView.count(
-                          crossAxisCount: 2,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          childAspectRatio: 2,
-                          children: [
-                            _buildInfoField('Nombre', _selectedBusiness!.nombre),
-                            _buildInfoField(
-                              'NIT',
-                              _selectedBusiness!.nit ?? 'N/A',
-                            ),
-                            _buildInfoField(
-                              'Fecha Registro',
-                              _selectedBusiness!.fechaRegistro != null
-                                  ? DateFormat('dd/MM/yyyy')
-                                      .format(_selectedBusiness!.fechaRegistro!)
-                                  : 'N/A',
-                            ),
-                            _buildInfoField(
-                              'Estado',
-                              _selectedBusiness!.estado ? 'Activo' : 'Inactivo',
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Contactos
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Contactos',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            ElevatedButton.icon(
-                              onPressed: () =>
-                                  _showManageContactsDialog(_selectedBusiness!),
-                              icon: const Icon(Icons.add),
-                              label: const Text('Gestionar'),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        if (_selectedBusiness!.contactos.isEmpty)
-                          Text(
-                            'Sin contactos registrados',
-                            style: TextStyle(color: Colors.grey[600]),
-                          )
-                        else
-                          Column(
-                            children: _selectedBusiness!.contactos
-                                .map((c) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    c.tipo == 'telefono'
-                                        ? Icons.phone
-                                        : Icons.email,
-                                    size: 18,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(child: Text(c.valor)),
-                                  if (c.principal)
-                                    Chip(
-                                      label: const Text('Principal'),
-                                      labelStyle: const TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.white,
-                                      ),
-                                      backgroundColor: Colors.blue,
-                                      padding: EdgeInsets.zero,
-                                    ),
-                                ],
-                              ),
-                            ))
-                                .toList(),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Direcciones
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Direcciones',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            ElevatedButton.icon(
-                              onPressed: () =>
-                                  _showManageAddressesDialog(_selectedBusiness!),
-                              icon: const Icon(Icons.add),
-                              label: const Text('Gestionar'),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        if (_selectedBusiness!.direcciones.isEmpty)
-                          Text(
-                            'Sin direcciones registradas',
-                            style: TextStyle(color: Colors.grey[600]),
-                          )
-                        else
-                          Column(
-                            children: _selectedBusiness!.direcciones
-                                .map((d) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.location_on, size: 18),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          d.calle,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        if (d.ciudad != null ||
-                                            d.departamento != null)
-                                          Text(
-                                            '${d.ciudad ?? ''} ${d.departamento ?? ''}',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (d.principal)
-                                    Chip(
-                                      label: const Text('Principal'),
-                                      labelStyle: const TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.white,
-                                      ),
-                                      backgroundColor: Colors.green,
-                                      padding: EdgeInsets.zero,
-                                    ),
-                                ],
-                              ),
-                            ))
-                                .toList(),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            )
-          else if (_businesses.isEmpty) ...[
+          if (_businesses.isEmpty)
             Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     Icons.store_outlined,
@@ -640,28 +388,326 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   ),
                 ],
               ),
+            )
+          else
+            Card(
+              child: Column(
+                children: [
+                  // Tabla de negocios
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columnSpacing: 20,
+                      columns: [
+                        DataColumn(label: const Text('Nombre')),
+                        DataColumn(label: const Text('NIT')),
+                        DataColumn(label: const Text('Sistema')),
+                        DataColumn(label: const Text('Estado')),
+                        DataColumn(label: const Text('Acciones')),
+                      ],
+                      rows: _businesses.map((business) {
+                        final isSelected = _selectedBusiness?.id == business.id;
+                        return DataRow(
+                          selected: isSelected,
+                          onSelectChanged: (selected) {
+                            setState(() => _selectedBusiness = business);
+                          },
+                          cells: [
+                            DataCell(Text(business.nombre)),
+                            DataCell(Text(business.nit ?? 'N/A')),
+                            DataCell(
+                              Chip(
+                                label: Text(business.sistema),
+                                labelStyle: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.white,
+                                ),
+                                backgroundColor: _getSistemaColor(business.sistema),
+                                padding: EdgeInsets.zero,
+                              ),
+                            ),
+                            DataCell(
+                              Chip(
+                                label: Text(
+                                  business.estado ? 'Activo' : 'Inactivo',
+                                  style: const TextStyle(fontSize: 11),
+                                ),
+                                backgroundColor: business.estado
+                                    ? Colors.green[100]
+                                    : Colors.red[100],
+                                labelStyle: TextStyle(
+                                  fontSize: 11,
+                                  color:
+                                      business.estado ? Colors.green : Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, size: 18),
+                                    onPressed: () =>
+                                        _showEditBusinessDialog(business),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      business.estado
+                                          ? Icons.block
+                                          : Icons.check_circle,
+                                      size: 18,
+                                      color: business.estado
+                                          ? Colors.orange
+                                          : Colors.green,
+                                    ),
+                                    onPressed: () =>
+                                        _toggleBusinessStatus(business),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
 
           const SizedBox(height: 24),
 
-          // Botón crear negocio
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _showCreateBusinessDialog,
-              icon: const Icon(Icons.add_business),
-              label: const Text('+ Crear Nuevo Negocio'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
+          // Mostrar detalles si hay negocio seleccionado
+          if (_selectedBusiness != null) ...[
+            Text(
+              'Detalles de ${_selectedBusiness!.nombre}',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
+            const SizedBox(height: 16),
+            
+            // Información básica
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Información General',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      childAspectRatio: 2,
+                      children: [
+                        _buildInfoField('Nombre', _selectedBusiness!.nombre),
+                        _buildInfoField(
+                          'NIT',
+                          _selectedBusiness!.nit ?? 'N/A',
+                        ),
+                        _buildInfoField(
+                          'Sistema',
+                          _selectedBusiness!.sistema,
+                        ),
+                        _buildInfoField(
+                          'Fecha Registro',
+                          _selectedBusiness!.fechaRegistro != null
+                              ? DateFormat('dd/MM/yyyy')
+                                  .format(_selectedBusiness!.fechaRegistro!)
+                              : 'N/A',
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Contactos
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Contactos',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () =>
+                              _showManageContactsDialog(_selectedBusiness!),
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('Agregar'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    if (_selectedBusiness!.contactos.isEmpty)
+                      Text(
+                        'Sin contactos registrados',
+                        style: TextStyle(color: Colors.grey[600]),
+                      )
+                    else
+                      Column(
+                        children: _selectedBusiness!.contactos
+                            .map((c) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              Icon(
+                                c.tipo == 'telefono'
+                                    ? Icons.phone
+                                    : Icons.email,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text(c.valor)),
+                              if (c.principal)
+                                Chip(
+                                  label: const Text('Principal'),
+                                  labelStyle: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.white,
+                                  ),
+                                  backgroundColor: Colors.blue,
+                                  padding: EdgeInsets.zero,
+                                ),
+                            ],
+                          ),
+                        ))
+                            .toList(),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Direcciones
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Direcciones',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () =>
+                              _showManageAddressesDialog(_selectedBusiness!),
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('Agregar'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    if (_selectedBusiness!.direcciones.isEmpty)
+                      Text(
+                        'Sin direcciones registradas',
+                        style: TextStyle(color: Colors.grey[600]),
+                      )
+                    else
+                      Column(
+                        children: _selectedBusiness!.direcciones
+                            .map((d) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.location_on, size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      d.calle,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    if (d.ciudad != null ||
+                                        d.departamento != null)
+                                      Text(
+                                        '${d.ciudad ?? ''} ${d.departamento ?? ''}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              if (d.principal)
+                                Chip(
+                                  label: const Text('Principal'),
+                                  labelStyle: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.white,
+                                  ),
+                                  backgroundColor: Colors.green,
+                                  padding: EdgeInsets.zero,
+                                ),
+                            ],
+                          ),
+                        ))
+                            .toList(),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  Color _getSistemaColor(String sistema) {
+    switch (sistema) {
+      case 'Repuesto':
+        return Colors.blue;
+      case 'Prestamo':
+        return Colors.purple;
+      case 'Inmuebles':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
   }
 
   Widget _buildInfoField(String label, String value) {
@@ -981,6 +1027,7 @@ class _CreateBusinessDialogState extends State<_CreateBusinessDialog> {
   final _dateController = TextEditingController();
   late PageController _pageController;
   int _currentStep = 0;
+  String _selectedSistema = 'Repuesto';
 
   List<ContactModel> _contactos = [];
   List<AddressModel> _direcciones = [];
@@ -1126,6 +1173,26 @@ class _CreateBusinessDialogState extends State<_CreateBusinessDialog> {
               if (date != null) {
                 _dateController.text =
                     DateFormat('dd/MM/yyyy').format(date);
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            value: _selectedSistema,
+            decoration: const InputDecoration(
+              labelText: 'Sistema a Utilizar *',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.category),
+            ),
+            items: ['Repuesto', 'Prestamo', 'Inmuebles']
+                .map((sistema) => DropdownMenuItem(
+              value: sistema,
+              child: Text(sistema),
+            ))
+                .toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _selectedSistema = value);
               }
             },
           ),
@@ -1438,6 +1505,7 @@ class _CreateBusinessDialogState extends State<_CreateBusinessDialog> {
         nit: _nitController.text.isEmpty ? null : _nitController.text,
         fechaRegistro: fechaRegistro,
         adminId: widget.adminId,
+        sistema: _selectedSistema,
         contactos: _contactos,
         direcciones: _direcciones,
       );
