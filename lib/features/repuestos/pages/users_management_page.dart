@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:crypto/crypto.dart';
-import '../../../shared/models/role_model.dart';
-import '../../../shared/services/role_service.dart';
-import '../../../core/config/app_config.dart';
 
-/// Panel de Gestión de Usuarios del Sistema Repuestos
+/// DEPRECATED PAGE - This page uses an old user and role model that is no longer supported
+/// 
+/// The current architecture focuses on employee management with role assignment at the employee level
+/// rather than separate user/role management. 
+/// For user management, please use the admin dashboard (AdminDashboardPage).
+///
+/// TODO: Implement new user management UI based on current architecture if needed
+/// 
+/// Status: Non-functional placeholder
 class UsersManagementPage extends StatefulWidget {
   const UsersManagementPage({super.key});
 
@@ -14,95 +17,51 @@ class UsersManagementPage extends StatefulWidget {
 }
 
 class _UsersManagementPageState extends State<UsersManagementPage> {
-  List<Map<String, dynamic>> _users = [];
-  List<RoleModel> _roles = [];
-  bool _isLoading = true;
-  String? _errorMessage;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Gestión de Usuarios (DEPRECATED)'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              size: 64,
+              color: Colors.orange[400],
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Página Deprecada',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Esta página usa un modelo de usuarios que ya no es compatible.\n\nUsa AdminDashboard para gestionar empleados y permisos.\n\nEsta página será removida en una futura versión.',
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Volver'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
   @override
   void initState() {
     super.initState();
-    _loadData();
   }
-
-  Future<void> _loadData() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      await Future.wait([
-        _loadUsers(),
-        _loadRoles(),
-      ]);
-    } catch (e) {
-      AppConfig.logger.e('Error loading data: $e');
-      setState(() {
-        _errorMessage = 'Error al cargar datos: $e';
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _loadUsers() async {
-    try {
-      final supabase = Supabase.instance.client;
-      
-      // Obtener usuarios del sistema (excluyendo admin_negocio)
-      final response = await supabase
-          .from('users')
-          .select()
-          .neq('rol', 'admin_negocio')
-          .order('nombre_completo', ascending: true);
-
-      // Cargar roles para cada usuario
-      final usersWithRoles = [];
-      for (var user in response) {
-        final userId = user['id'] as int;
-        final userRoles = await RoleService.getUserRoles(userId);
-        
-        user['roles'] = userRoles;
-        usersWithRoles.add(user);
-      }
-
-      setState(() {
-        _users = List<Map<String, dynamic>>.from(usersWithRoles);
-      });
-      AppConfig.logger.i('Loaded ${_users.length} users');
-    } catch (e) {
-      AppConfig.logger.e('Error loading users: $e');
-    }
-  }
-
-  Future<void> _loadRoles() async {
-    try {
-      final roles = await RoleService.getAllRoles();
-      setState(() {
-        _roles = roles;
-      });
-    } catch (e) {
-      AppConfig.logger.e('Error loading roles: $e');
-    }
-  }
-
-  Future<void> _createUser() async {
-    final usernameController = TextEditingController();
-    final nameController = TextEditingController();
-    final selectedRoles = <int>{};
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateDialog) => AlertDialog(
-          title: const Text('Crear Nuevo Usuario'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+}
               children: [
                 TextField(
                   controller: usernameController,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../shared/models/employee_model.dart';
 import '../../../shared/models/user_model.dart';
-import '../../../shared/services/employee_service.dart';
 import 'employee_form_simple.dart';
 
 /// Página básica de empleados - versión simple que funciona
+/// NOTA: Esta es una versión legacy. Para producción, usar admin_dashboard_page.dart
 class EmployeesPageBasic extends StatefulWidget {
   final UserModel currentUser;
 
@@ -28,39 +28,21 @@ class _EmployeesPageBasicState extends State<EmployeesPageBasic> {
   }
 
   void _loadEmployees() {
-    setState(() {
-      isLoading = true;
-    });
-
-    // Cargar empleados según permisos del usuario
-    if (widget.currentUser.role == 'super_admin') {
-      employees = EmployeeService.getAllEmployees();
-    } else {
-      // Admin y otros roles solo ven empleados de su negocio
-      employees = EmployeeService.getEmployeesByBusiness(
-        'business_ferreteria' // Por ahora fijo, después se puede hacer dinámico
-      );
-    }
-    
+    // NOTA: Esta es una versión placeholder. La carga actual está deprecada.
+    // Los empleados deberían cargarse desde EmployeeRepository
     setState(() {
       isLoading = false;
+      employees = []; // Lista vacía hasta implementar EmployeeRepository
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final stats = EmployeeService.getEmployeeStats(null);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Empleados'),
         elevation: 0,
         actions: [
-          // Estadísticas
-          IconButton(
-            icon: const Icon(Icons.analytics),
-            onPressed: () => _showStatsDialog(stats),
-          ),
           // Agregar (solo admins)
           if (_canManageEmployees())
             IconButton(
@@ -69,85 +51,12 @@ class _EmployeesPageBasicState extends State<EmployeesPageBasic> {
             ),
         ],
       ),
-      body: Column(
-        children: [
-          // Stats rápidos
-          _buildQuickStats(stats),
-          
-          // Lista de empleados
-          Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : employees.isEmpty
-                    ? _buildEmptyState()
-                    : _buildEmployeesList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickStats(Map<String, dynamic> stats) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildStatCard(
-              'Total',
-              stats['total'].toString(),
-              Icons.people,
-              Colors.blue,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              'Activos',
-              stats['active'].toString(),
-              Icons.check_circle,
-              Colors.green,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              'Nómina',
-              '\$${(stats['totalPayroll'] / 1000000).toStringAsFixed(1)}M',
-              Icons.attach_money,
-              Colors.orange,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12),
-          ),
-        ],
+      body: Expanded(
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : employees.isEmpty
+                ? _buildEmptyState()
+                : _buildEmployeesList(),
       ),
     );
   }
@@ -165,37 +74,36 @@ class _EmployeesPageBasicState extends State<EmployeesPageBasic> {
           child: ListTile(
             contentPadding: const EdgeInsets.all(16),
             leading: CircleAvatar(
-              backgroundColor: Color(employee.roleColor),
+              backgroundColor: Colors.blueAccent,
               child: Text(
-                employee.fullName.isNotEmpty 
-                    ? employee.fullName[0].toUpperCase()
+                employee.nombre.isNotEmpty 
+                    ? employee.nombre[0].toUpperCase()
                     : 'E',
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
             title: Text(
-              employee.fullName,
+              employee.nombre,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(employee.roleDisplayName),
-                Text('Cédula: ${employee.cedula}'),
-                Text('Salario: ${employee.salaryFormatted}'),
+                if (employee.cargo != null) Text(employee.cargo!),
+                if (employee.numeroDocumento != null) Text('Cédula: ${employee.numeroDocumento!}'),
               ],
             ),
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: employee.isActive ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                color: employee.estado ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                employee.statusDisplay,
+                employee.estado ? 'Activo' : 'Inactivo',
                 style: TextStyle(
                   fontSize: 12,
-                  color: employee.isActive ? Colors.green : Colors.red,
+                  color: employee.estado ? Colors.green : Colors.red,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -248,20 +156,23 @@ class _EmployeesPageBasicState extends State<EmployeesPageBasic> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(employee.fullName),
+        title: Text(employee.nombre),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Cédula: ${employee.cedula}'),
-            Text('Rol: ${employee.roleDisplayName}'),
-            Text('Teléfono: ${employee.phone ?? 'No registrado'}'),
-            Text('Email: ${employee.email ?? 'No registrado'}'),
-            Text('Fecha ingreso: ${employee.hireDate.day}/${employee.hireDate.month}/${employee.hireDate.year}'),
-            Text('Antigüedad: ${employee.workTimeFormatted}'),
-            Text('Salario: ${employee.salaryFormatted}'),
-            Text('Estado: ${employee.statusDisplay}'),
-            if (employee.notes != null) Text('Notas: ${employee.notes}'),
+            if (employee.numeroDocumento != null) 
+              Text('Cédula: ${employee.numeroDocumento!}'),
+            if (employee.cargo != null) 
+              Text('Cargo: ${employee.cargo!}'),
+            if (employee.telefono != null) 
+              Text('Teléfono: ${employee.telefono!}'),
+            if (employee.email != null) 
+              Text('Email: ${employee.email!}'),
+            Text('Creado: ${employee.createdAt.day}/${employee.createdAt.month}/${employee.createdAt.year}'),
+            Text('Estado: ${employee.estado ? "Activo" : "Inactivo"}'),
+            if (employee.roles.isNotEmpty)
+              Text('Roles: ${employee.roles.map((r) => r.nombre).join(", ")}'),
           ],
         ),
         actions: [
@@ -274,7 +185,7 @@ class _EmployeesPageBasicState extends State<EmployeesPageBasic> {
     );
   }
 
-  void _showStatsDialog(Map<String, dynamic> stats) {
+  void _showStatsDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -282,12 +193,9 @@ class _EmployeesPageBasicState extends State<EmployeesPageBasic> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildStatRow('Total de empleados', stats['total'].toString()),
-            _buildStatRow('Empleados activos', stats['active'].toString()),
-            _buildStatRow('Empleados inactivos', stats['inactive'].toString()),
-            const Divider(height: 24),
-            _buildStatRow('Nómina total', '\$${(stats['totalPayroll'] / 1000000).toStringAsFixed(1)}M'),
-            _buildStatRow('Salario promedio', '\$${(stats['averageSalary'] / 1000).toStringAsFixed(0)}K'),
+            _buildStatRow('Total de empleados', employees.length.toString()),
+            _buildStatRow('Empleados activos', employees.where((e) => e.estado).length.toString()),
+            _buildStatRow('Empleados inactivos', employees.where((e) => !e.estado).length.toString()),
           ],
         ),
         actions: [

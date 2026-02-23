@@ -904,7 +904,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               child: Text(business.nombre),
                             ),
                             Text(
-                              business.nit,
+                              business.nit ?? 'N/A',
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Colors.grey[600],
                               ),
