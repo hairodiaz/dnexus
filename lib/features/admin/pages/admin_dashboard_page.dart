@@ -1625,6 +1625,97 @@ class _EmployeeFormDialogState extends State<_EmployeeFormDialog>
     }
   }
 
+  void _showCreateRoleDialog() {
+    final roleNameController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Crear Rol Rápido'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: roleNameController,
+              decoration: InputDecoration(
+                labelText: 'Nombre del Rol',
+                hintText: 'Ej: Administrador, Vendedor, Gerente',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Se creará un rol con acceso a todos los módulos',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.grey[600],
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (roleNameController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Por favor ingresa un nombre')),
+                );
+                return;
+              }
+              Navigator.pop(context);
+              await _createQuickRole(roleNameController.text);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.indigo[600],
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Crear Rol'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _createQuickRole(String roleName) async {
+    try {
+      // Crear rol con todos los módulos (1, 2, 3, 4)
+      final newRole = await _empleadoRepository.createRole(
+        businessId: widget.businessId,
+        nombre: roleName,
+        descripcion: 'Cuenta creada rápidamente',
+        moduloIds: [1, 2, 3, 4], // Todos los módulos
+      );
+      
+      // Recargar roles
+      await _loadRoles();
+      
+      // Seleccionar el rol nuevo automáticamente
+      if (newRole != null) {
+        setState(() {
+          _rolesSeleccionados.add(newRole.id!);
+        });
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Rol "$roleName" creado exitosamente')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al crear rol: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -1846,7 +1937,7 @@ class _EmployeeFormDialogState extends State<_EmployeeFormDialog>
           ),
           const SizedBox(height: 8),
           Text(
-            'Selecciona los roles que tendrá este empleado en el negocio',
+            'Selecciona los roles que tendrá este empleado (opcional)',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Colors.grey[600],
             ),
@@ -1855,40 +1946,78 @@ class _EmployeeFormDialogState extends State<_EmployeeFormDialog>
           if (_isLoadingRoles)
             const Center(child: CircularProgressIndicator())
           else if (_rolesDisponibles.isEmpty)
-            Center(
-              child: Text(
-                'No hay roles disponibles en este negocio',
-                style:
-                    Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, size: 48, color: Colors.orange[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'No hay roles disponibles en este negocio',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: _showCreateRoleDialog,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Crear Rol Rápido'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.indigo[600],
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'O continúa sin asignar roles ahora',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[500],
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             )
           else
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: _rolesDisponibles.map((role) {
-                final isSelected = _rolesSeleccionados.contains(role.id);
-                return FilterChip(
-                  label: Text(role.nombre),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    setState(() {
-                      if (selected) {
-                        _rolesSeleccionados.add(role.id!);
-                      } else {
-                        _rolesSeleccionados.remove(role.id!);
-                      }
-                    });
-                  },
-                  backgroundColor: Colors.grey[100],
-                  selectedColor: Colors.indigo[100],
-                  side: BorderSide(
-                    color: isSelected ? Colors.indigo[600]! : Colors.grey[300]!,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: _rolesDisponibles.map((role) {
+                    final isSelected = _rolesSeleccionados.contains(role.id);
+                    return FilterChip(
+                      label: Text(role.nombre),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          if (selected) {
+                            _rolesSeleccionados.add(role.id!);
+                          } else {
+                            _rolesSeleccionados.remove(role.id!);
+                          }
+                        });
+                      },
+                      backgroundColor: Colors.grey[100],
+                      selectedColor: Colors.indigo[100],
+                      side: BorderSide(
+                        color: isSelected ? Colors.indigo[600]! : Colors.grey[300]!,
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 24),
+                OutlinedButton.icon(
+                  onPressed: _showCreateRoleDialog,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Crear Nuevo Rol'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.indigo[600],
                   ),
-                );
-              }).toList(),
+                ),
+              ],
             ),
         ],
       ),
