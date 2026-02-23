@@ -6,43 +6,47 @@ part 'role_model.g.dart';
 @JsonSerializable()
 class RoleModel {
   final int id;
+  final int negocioId;
   final String nombre;
   final String? descripcion;
-  final String sistema;
-  final DateTime? createdAt;
+  final bool estado;
+  final DateTime createdAt;
   final DateTime? updatedAt;
   
-  // Permisos asociados a este rol (cargados dinámicamente)
-  final List<String> permissionNames;
+  // Módulos asociados a este rol (cargados dinámicamente)
+  final List<int> moduloIds;
 
   RoleModel({
     required this.id,
+    required this.negocioId,
     required this.nombre,
     this.descripcion,
-    required this.sistema,
-    this.createdAt,
+    required this.estado,
+    required this.createdAt,
     this.updatedAt,
-    this.permissionNames = const [],
+    this.moduloIds = const [],
   });
 
   /// Crea una copia del modelo con campos modificados
   RoleModel copyWith({
     int? id,
+    int? negocioId,
     String? nombre,
     String? descripcion,
-    String? sistema,
+    bool? estado,
     DateTime? createdAt,
     DateTime? updatedAt,
-    List<String>? permissionNames,
+    List<int>? moduloIds,
   }) {
     return RoleModel(
       id: id ?? this.id,
+      negocioId: negocioId ?? this.negocioId,
       nombre: nombre ?? this.nombre,
       descripcion: descripcion ?? this.descripcion,
-      sistema: sistema ?? this.sistema,
+      estado: estado ?? this.estado,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      permissionNames: permissionNames ?? this.permissionNames,
+      moduloIds: moduloIds ?? this.moduloIds,
     );
   }
 
