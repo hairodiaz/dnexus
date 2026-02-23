@@ -6,9 +6,9 @@ class EmployeeDashboardPage extends StatefulWidget {
   final UserModel currentUser;
 
   const EmployeeDashboardPage({
-    Key? key,
+    super.key,
     required this.currentUser,
-  }) : super(key: key);
+  });
 
   @override
   State<EmployeeDashboardPage> createState() => _EmployeeDashboardPageState();

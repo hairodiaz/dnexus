@@ -12,7 +12,6 @@ import 'features/auth/pages/owner_login_page.dart';
 import 'features/auth/pages/user_management_login_page.dart';
 import 'features/auth/pages/force_change_password_page.dart';
 import 'features/auth/pages/admin_panel_page.dart';
-import 'features/auth/pages/owner_dashboard_page.dart';
 import 'features/auth/pages/super_admin_panel_page.dart';
 import 'features/admin/pages/owner_dashboard_page.dart' as owner_dashboard;
 import 'features/admin/pages/admin_dashboard_page.dart' as admin_dashboard;

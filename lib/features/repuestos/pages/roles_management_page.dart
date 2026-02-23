@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/role_model.dart';
 import '../../../shared/models/permission_model.dart';
 import '../../../shared/services/role_service.dart';

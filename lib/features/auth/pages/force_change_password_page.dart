@@ -11,9 +11,9 @@ class ForceChangePasswordPage extends StatefulWidget {
   final UserModel user;
 
   const ForceChangePasswordPage({
-    Key? key,
+    super.key,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
   State<ForceChangePasswordPage> createState() => _ForceChangePasswordPageState();

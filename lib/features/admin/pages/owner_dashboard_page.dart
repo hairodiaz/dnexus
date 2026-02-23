@@ -9,9 +9,9 @@ class OwnerDashboardPage extends StatefulWidget {
   final UserModel currentUser;
 
   const OwnerDashboardPage({
-    Key? key,
+    super.key,
     required this.currentUser,
-  }) : super(key: key);
+  });
 
   @override
   State<OwnerDashboardPage> createState() => _OwnerDashboardPageState();
